@@ -13,7 +13,7 @@ object AppRoutes {
 
     // Informações de Saúde do Paciente
     const val TelaInformacoesSaudePaciente       = "tela_informacoes_saude_paciente"
-    const val TelaConsultasPaciente              = "tela_consultas_paciente"
+    const val TelaConsultasPaciente              = "tela_consultas_paciente"s
     const val TelaExamesPaciente                 = "tela_exames_paciente"
     const val TelaInternacaoPaciente             = "tela_internacao_paciente"
     const val TelaSaudeMentalPaciente            = "tela_saude_mental_paciente"
