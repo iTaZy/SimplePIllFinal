@@ -158,11 +158,11 @@ private fun ConteudoLogin(navController: NavHostController) {
                         val usuario = autenticar(email, senha)
                         when (usuario.tipo) {
                             TipoUsuario.PACIENTE ->
-                                navController.navigate("${AppRoutes.BemVindoPaciente}/${usuario.nome}")
+                                navController.navigate("${AppRoutes.BemVindoPaciente}/${usuario.nome}/${email}")
                             TipoUsuario.CUIDADOR ->
-                                navController.navigate("${AppRoutes.BemVindoCuidador}/${usuario.nome}")
+                                navController.navigate("${AppRoutes.BemVindoCuidador}/${usuario.nome}/${email}")
                             TipoUsuario.PROFISSIONAL_SAUDE ->
-                                navController.navigate("${AppRoutes.BemVindoProfissional}/${usuario.nome}")
+                                navController.navigate("${AppRoutes.BemVindoProfissional}/${usuario.nome}/${email}")
                         }
                     } finally {
                         loading = false

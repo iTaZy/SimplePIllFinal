@@ -7,7 +7,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.tazy.simplepillfinal.AppRoutes
-import com.tazy.simplepillfinal.AppRoutes.TelaProximasFisioterapiaPaciente
 import com.tazy.simplepillfinal.CadastroScreen
 import com.tazy.simplepillfinal.ui.screens.TelaBemVindoCuidador
 import com.tazy.simplepillfinal.ui.screens.TelaBemVindoPaciente
@@ -43,24 +42,25 @@ fun NavGraph(navController: NavHostController) {
         composable(AppRoutes.CadastroPaciente) { TelaCadastroPaciente(navController) }
         composable(AppRoutes.CadastroCuidador) { TelaCadastroCuidador(navController) }
         composable(AppRoutes.CadastroProfissional) { TelaCadastroProfissionalDaSaude(navController) }
-        composable(AppRoutes.TelaCadastroPacienteProf) { TelaCadastroPacienteProf(navController = navController) }
-        // Bem-vindas
+        composable(AppRoutes.TelaCadastroPacienteProf) { TelaCadastroPacienteProf(navController) }
 
+        // Bem-vindas
         composable(
-            route = "${AppRoutes.BemVindoPaciente}/{nome}",
+            route = "${AppRoutes.BemVindoPaciente}/{nome}/{email}",
             arguments = listOf(
-                navArgument("nome") { type = NavType.StringType }
+                navArgument("nome") { type = NavType.StringType },
+                navArgument("email") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val nome = backStackEntry.arguments?.getString("nome") ?: ""
-            TelaBemVindoPaciente(navController = navController, nome = nome)
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            TelaBemVindoPaciente(navController = navController, nome = nome, email = email)
         }
+
 
         composable(
             route = "${AppRoutes.BemVindoCuidador}/{nome}",
-            arguments = listOf(
-                navArgument("nome") { type = NavType.StringType }
-            )
+            arguments = listOf(navArgument("nome") { type = NavType.StringType })
         ) { backStackEntry ->
             val nome = backStackEntry.arguments?.getString("nome") ?: ""
             TelaBemVindoCuidador(navController = navController, nome = nome)
@@ -68,77 +68,58 @@ fun NavGraph(navController: NavHostController) {
 
         composable(
             route = "${AppRoutes.BemVindoProfissional}/{nome}",
-            arguments = listOf(
-                navArgument("nome") { type = NavType.StringType }
-            )
+            arguments = listOf(navArgument("nome") { type = NavType.StringType })
         ) { backStackEntry ->
             val nome = backStackEntry.arguments?.getString("nome") ?: ""
             TelaBemVindoProfissionalSaude(navController = navController, nome = nome)
         }
 
-        // Informaçoes de saúde Paciente
-
-        composable(route = AppRoutes.TelaInformacoesSaudePaciente) {
-            TelaInformacoesSaudePaciente(navController)
+        // Informações de saúde do paciente (agora recebe email!)
+        composable(
+            route = "${AppRoutes.TelaInformacoesSaudePaciente}/{email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val email = backStackEntry.arguments?.getString("email") ?: ""
+            TelaInformacoesSaudePaciente(navController, pacienteEmail = email)
         }
+
+        // Outras telas (sem mudanças)
         composable(AppRoutes.TelaConsultasPaciente) {
             TelaConsultasPaciente(navController)
         }
         composable(AppRoutes.TelaProximasConsultasPaciente) {
             TelaProximasConsultasPaciente(navController)
         }
-        composable(AppRoutes.TelaConsultasAnterioresPaciente) {
-            // TODO: Sua TelaConsultasAnteriores(navController)
-        }
-
         composable(AppRoutes.TelaExamesPaciente) {
             TelaExamesPaciente(navController)
         }
         composable(AppRoutes.TelaProximosExamesPaciente) {
             TelaProximosExamesPaciente(navController)
         }
-        composable(AppRoutes.TelaExamesAnterioresPaciente) {
-            // TODO: Sua  TelaExamesAnterioresPaciente(navController)
-        }
-
         composable(AppRoutes.TelaVacinasPaciente) {
             TelaVacinasPaciente(navController)
         }
         composable(AppRoutes.TelaProximasVacinasPaciente) {
             TelaProximasVacinasPaciente(navController)
         }
-        composable(AppRoutes.TelaDosesAnterioresPaciente) {
-            // TODO: Sua TelaDosesAnterioresPaciente(navController)
-        }
         composable(AppRoutes.TelaRotinaDeExerciciosPaciente) {
             TelaRotinaDeExerciciosPaciente(navController)
         }
-
-
-            composable(AppRoutes.TelaRotinaDeExerciciosPaciente) {
-                TelaRotinaDeExerciciosPaciente(navController)
-            }
-        // No NavGraph.kt, adicione:
         composable(
             route = "${AppRoutes.TelaExerciciosDiaPaciente}/{dia}",
             arguments = listOf(navArgument("dia") { type = NavType.StringType })
         ) { backStackEntry ->
             val dia = backStackEntry.arguments?.getString("dia") ?: ""
             TelaExerciciosDiaPaciente(navController, dia)
-
         }
         composable(AppRoutes.TelaFisioterapiaPaciente) {
             TelaFisioterapiaPaciente(navController)
         }
         composable(AppRoutes.TelaProximasFisioterapiaPaciente) {
-           TelaProximasFisioterapiaPaciente(navController)
+            TelaProximasFisioterapiaPaciente(navController)
         }
-
         composable(AppRoutes.TelaConsultasNutricionista) {
             TelaConsultasNutricionista(navController)
-        }
-        composable(AppRoutes.TelaProximasConsultasNutricionista) {
-            TelaProximasConsultasPaciente(navController)
         }
         composable(AppRoutes.TelaSaudeMentalPaciente) {
             TelaSaudeMentalPaciente(navController)
@@ -147,13 +128,7 @@ fun NavGraph(navController: NavHostController) {
             TelaProximasSaudeMentalPaciente(navController)
         }
         composable(AppRoutes.TelaMedicacaoPaciente) {
-            TelaMedicacaoPaciente(
-                onVoltar = { navController.popBackStack() }
-            )
-
-
+            TelaMedicacaoPaciente(onVoltar = { navController.popBackStack() })
         }
     }
 }
-
-        // (Faça o mesmo para as outras telas de Bem‑vindo, se tiver parâmetros)

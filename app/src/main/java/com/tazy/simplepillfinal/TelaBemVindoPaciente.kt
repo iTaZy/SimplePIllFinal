@@ -14,20 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.tazy.simplepillfinal.R
 import com.tazy.simplepillfinal.AppRoutes
 
 @Composable
-fun TelaBemVindoPaciente(
-    navController: NavHostController,
-    nome: String
-) {
+fun TelaBemVindoPaciente(navController: NavController, nome: String, email: String) {
     // azul clarinho da imagem: #74ABBF
     val lightBlue = Color(0xFF74ABBF)
 
@@ -87,7 +82,8 @@ fun TelaBemVindoPaciente(
 
             // Botão “Informações de saúde”
             Button(
-                onClick = {  navController.navigate(AppRoutes.TelaInformacoesSaudePaciente) },
+                onClick = {  navController.navigate("${AppRoutes.TelaInformacoesSaudePaciente}/$email")
+                },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
                 modifier = Modifier
