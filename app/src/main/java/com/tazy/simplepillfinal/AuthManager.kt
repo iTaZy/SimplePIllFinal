@@ -1,24 +1,53 @@
 package com.tazy.simplepillfinal.auth
 
-import kotlinx.coroutines.delay
-import com.tazy.simplepillfinal.model.Usuario
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tazy.simplepillfinal.model.TipoUsuario
+import com.tazy.simplepillfinal.model.Usuario
+import kotlinx.coroutines.tasks.await
 
-/**
- * Simula uma chamada de login assíncrona.
- * Substituap esse método pela sua integração real (Firebase, REST API, etc).
- */
+/** Faz login real no Firebase Firestore buscando em várias coleções */
 suspend fun autenticar(email: String, senha: String): Usuario {
-    // Simula tempo de rede
-    delay(1000)
+    val db = FirebaseFirestore.getInstance()
 
-    // Lógica de exemplo: determina tipo pelo e-mail
-    val tipo = when {
-        email.contains("pro")  -> TipoUsuario.PROFISSIONAL_SAUDE
-        email.contains("cui")  -> TipoUsuario.CUIDADOR
-        else                   -> TipoUsuario.PACIENTE
+    // 1. Buscar em profissionais da saúde
+    val profissionais = db.collection("profissionaisDaSaude")
+        .whereEqualTo("emailPaciente", email)
+        .whereEqualTo("senhaPaciente", senha)
+        .get()
+        .await()
+
+    if (!profissionais.isEmpty) {
+        val documento = profissionais.documents.first()
+        val nome = documento.getString("nome") ?: "Profissional da Saúde"
+        return Usuario(nome = nome, tipo = TipoUsuario.PROFISSIONAL_SAUDE)
     }
-    // Nome fictício a partir do e-mail
-    val nome = email.substringBefore("@").replace(".", " ").replaceFirstChar { it.uppercase() }
-    return Usuario(nome = nome, tipo = tipo)
+
+    // 2. Buscar em pacientes
+    val pacientes = db.collection("pacientes")
+        .whereEqualTo("email", email)
+        .whereEqualTo("senha", senha)
+        .get()
+        .await()
+
+    if (!pacientes.isEmpty) {
+        val documento = pacientes.documents.first()
+        val nome = documento.getString("nome") ?: "Paciente"
+        return Usuario(nome = nome, tipo = TipoUsuario.PACIENTE)
+    }
+
+    // 3. Buscar em cuidadores
+    val cuidadores = db.collection("cuidadores")
+        .whereEqualTo("email", email)
+        .whereEqualTo("senha", senha)
+        .get()
+        .await()
+
+    if (!cuidadores.isEmpty) {
+        val documento = cuidadores.documents.first()
+        val nome = documento.getString("nome") ?: "Cuidador"
+        return Usuario(nome = nome, tipo = TipoUsuario.CUIDADOR)
+    }
+
+    // Se não encontrar em nenhum lugar
+    throw Exception("Email ou senha incorretos")
 }

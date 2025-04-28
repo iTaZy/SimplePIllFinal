@@ -1,5 +1,8 @@
 package com.tazy.simplepillfinal.ui.screens
 
+import android.os.Handler
+import android.os.Looper
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,13 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.firestore.FirebaseFirestore
 import com.tazy.simplepillfinal.R
 
 @Composable
@@ -33,8 +38,8 @@ fun TelaCadastroProfissionalDaSaude(navController: NavController) {
             contentAlignment = Alignment.TopCenter
         ) {
             Text(
-                text = "Cadastro do Profissional da saúde",
-                fontSize = 26.sp,
+                text = "Cadastro do Profissional da Saúde",
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 modifier = Modifier.padding(top = 50.dp)
@@ -57,13 +62,15 @@ fun TelaCadastroProfissionalDaSaude(navController: NavController) {
 
 @Composable
 private fun FormularioProfissional(navController: NavController) {
+    val context = LocalContext.current
+
     var nome by remember { mutableStateOf("") }
     var telefone by remember { mutableStateOf("") }
     var profissao by remember { mutableStateOf("") }
     var idade by remember { mutableStateOf("") }
     var endereco by remember { mutableStateOf("") }
-    var nomePaciente by remember { mutableStateOf("") }
-    var idPerfilPaciente by remember { mutableStateOf("") }
+    var emailPaciente by remember { mutableStateOf("") }
+    var senhaPaciente by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -73,12 +80,12 @@ private fun FormularioProfissional(navController: NavController) {
     ) {
         // Avatar
         Image(
-            painter = painterResource(id = R.drawable.ic_person_placeholder), // substitua pelo drawable certo
+            painter = painterResource(id = R.drawable.ic_person_placeholder),
             contentDescription = "Avatar Profissional da Saúde",
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape)
-                .background(Color.Gray)
+                .background(Color.LightGray)
         )
 
         Spacer(Modifier.height(24.dp))
@@ -115,15 +122,16 @@ private fun FormularioProfissional(navController: NavController) {
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
         )
         OutlinedTextField(
-            value = nomePaciente,
-            onValueChange = { nomePaciente = it },
-            label = { Text("Nome do paciente") },
+            value = emailPaciente,
+            onValueChange = { emailPaciente = it },
+            label = { Text("Email do Paciente") },
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
         )
         OutlinedTextField(
-            value = idPerfilPaciente,
-            onValueChange = { idPerfilPaciente = it },
-            label = { Text("ID do perfil do paciente") },
+            value = senhaPaciente,
+            onValueChange = { senhaPaciente = it },
+            label = { Text("Senha do Paciente") },
+            visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
         )
 
@@ -131,7 +139,7 @@ private fun FormularioProfissional(navController: NavController) {
 
         // Botões
         Row(
-            Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -144,7 +152,38 @@ private fun FormularioProfissional(navController: NavController) {
             )
 
             Button(
-                onClick = { /* TODO: salvar dados */ },
+                onClick = {
+                    if (nome.isBlank() || telefone.isBlank() || profissao.isBlank() || emailPaciente.isBlank() || senhaPaciente.isBlank()) {
+                        Toast.makeText(context, "Preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show()
+                    } else if (!emailPaciente.contains("@") || !emailPaciente.contains(".")) {
+                        Toast.makeText(context, "Digite um email válido!", Toast.LENGTH_SHORT).show()
+                    } else if (senhaPaciente.length < 6) {
+                        Toast.makeText(context, "A senha deve ter no mínimo 6 caracteres!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val db = FirebaseFirestore.getInstance()
+                        val profissional = hashMapOf(
+                            "nome" to nome,
+                            "telefone" to telefone,
+                            "profissao" to profissao,
+                            "idade" to idade,
+                            "endereco" to endereco,
+                            "emailPaciente" to emailPaciente,
+                            "senhaPaciente" to senhaPaciente
+                        )
+
+                        db.collection("profissionaisDaSaude")
+                            .add(profissional)
+                            .addOnSuccessListener {
+                                Toast.makeText(context, "Cadastro salvo com sucesso!", Toast.LENGTH_SHORT).show()
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    navController.popBackStack()
+                                }, 1500)
+                            }
+                            .addOnFailureListener { e ->
+                                Toast.makeText(context, "Erro ao salvar: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                },
                 shape = RoundedCornerShape(50),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE2C64D)),
                 modifier = Modifier.height(48.dp)
