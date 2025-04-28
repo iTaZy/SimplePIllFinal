@@ -43,6 +43,8 @@ android {
 
 dependencies {
 
+    implementation ("com.google.firebase:firebase-auth-ktx")
+    implementation ("com.google.firebase:firebase-firestore-ktx")
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.serialization.json)
