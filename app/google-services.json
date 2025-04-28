@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "221042802643",
+    "project_id": "simplepillapp-b351f",
+    "storage_bucket": "simplepillapp-b351f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:221042802643:android:acd01b22ccca8bb6a67926",
+        "android_client_info": {
+          "package_name": "com.tazy.simplepillfinal"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoPX-5NUZbdTAC-3OoY_MwaawVCNRCpgQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
