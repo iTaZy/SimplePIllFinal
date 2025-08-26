@@ -3,6 +3,7 @@ package com.tazy.simplepillfinal.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.tazy.simplepillfinal.model.Paciente
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.model.Usuario
 import kotlinx.coroutines.tasks.await
@@ -49,5 +50,56 @@ class AuthRepository {
         }
 
         throw Exception("Dados não encontrados para este tipo de perfil. Verifique o perfil selecionado.")
+    }
+    suspend fun vincularPaciente(emailPaciente: String, associadoUid: String, associadoTipo: TipoUsuario) {
+        // 1. Encontrar o paciente pelo e-mail na coleção de pacientes
+        val querySnapshot = firestore.collection(FirestoreCollections.PACIENTES)
+            .whereEqualTo("email", emailPaciente)
+            .limit(1)
+            .get()
+            .await()
+
+        if (querySnapshot.isEmpty) {
+            throw Exception("Nenhum paciente encontrado com este e-mail.")
+        }
+
+        val pacienteDoc = querySnapshot.documents.first()
+        val pacienteUid = pacienteDoc.id
+
+        // 2. Determinar qual campo atualizar no documento do paciente
+        val campoParaAtualizar = when (associadoTipo) {
+            TipoUsuario.CUIDADOR -> "cuidadoresIds"
+            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisIds"
+            else -> throw Exception("Tipo de perfil inválido para vinculação.")
+        }
+
+        // 3. Adicionar o UID do associado a um array no documento do paciente
+        // Usamos FieldValue.arrayUnion para garantir que não haja UIDs duplicados
+        val atualizacao = hashMapOf<String, Any>(
+            campoParaAtualizar to com.google.firebase.firestore.FieldValue.arrayUnion(associadoUid)
+        )
+
+        firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid)
+            .update(atualizacao)
+            .await()
+    }
+    suspend fun getPacientesVinculados(uid: String, tipo: TipoUsuario): List<Paciente> {
+        // 1. Determina o campo correto para a consulta com base no tipo de perfil
+        val campoDeBusca = when (tipo) {
+            TipoUsuario.CUIDADOR -> "cuidadoresIds"
+            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisIds"
+            else -> throw IllegalArgumentException("Tipo de perfil inválido para buscar pacientes.")
+        }
+
+        // 2. Executa a consulta no Firestore
+        val querySnapshot = firestore.collection(FirestoreCollections.PACIENTES)
+            .whereArrayContains(campoDeBusca, uid) // 'whereArrayContains' é a chave aqui
+            .get()
+            .await()
+
+        // 3. Mapeia os documentos encontrados para a nossa classe de dados Paciente
+        return querySnapshot.documents.mapNotNull { doc ->
+            doc.toObject(Paciente::class.java)
+        }
     }
 }
