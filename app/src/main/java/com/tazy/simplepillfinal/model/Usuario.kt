@@ -1,15 +1,15 @@
 // Usuario.kt
 package com.tazy.simplepillfinal.model
 
-/** Tipos possíveis de usuário */
 enum class TipoUsuario {
     PACIENTE,
     CUIDADOR,
     PROFISSIONAL_SAUDE
 }
 
-/** Dados básicos do usuário */
 data class Usuario(
+    val uid: String,
     val nome: String,
+    val email: String,
     val tipo: TipoUsuario
 )
