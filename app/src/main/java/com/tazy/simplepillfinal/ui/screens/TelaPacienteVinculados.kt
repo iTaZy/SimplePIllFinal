@@ -1,9 +1,10 @@
 // F_ARQUIVO: ui/screens/TelaPacientesVinculados.kt
 package com.tazy.simplepillfinal.ui.screens
 
+import androidx.compose.foundation.clickable // <-- IMPORTANTE: Adicione esta linha
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items // <-- IMPORTANTE: Adicione esta linha
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -16,6 +17,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.Paciente
 import com.tazy.simplepillfinal.model.TipoUsuario
+import com.tazy.simplepillfinal.navigation.AppRoutes // <-- IMPORTANTE: Adicione esta linha
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +68,15 @@ fun TelaPacientesVinculados(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(viewModel.pacientes) { paciente ->
-                        PacienteCard(paciente)
+                        // ATUALIZAÇÃO: O card agora é clicável e navega para a nova tela
+                        PacienteCard(
+                            paciente = paciente,
+                            onClick = {
+                                // Codifica o nome do paciente para ser passado como argumento na rota
+                                val encodedNome = URLEncoder.encode(paciente.nome, StandardCharsets.UTF_8.toString())
+                                navController.navigate("${AppRoutes.ACOES_PACIENTE}/${paciente.uid}/$encodedNome")
+                            }
+                        )
                     }
                 }
             }
@@ -73,9 +85,11 @@ fun TelaPacientesVinculados(
 }
 
 @Composable
-fun PacienteCard(paciente: Paciente) {
+fun PacienteCard(paciente: Paciente, onClick: () -> Unit) { // <-- ATUALIZAÇÃO: Adicionado o parâmetro onClick
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick), // <-- ATUALIZAÇÃO: Card se torna clicável
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

@@ -2,7 +2,7 @@
 package com.tazy.simplepillfinal.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController // Importe este se estiver faltando
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,11 +12,7 @@ import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.ui.screens.*
 
 @Composable
-// CORREÇÃO: Adicione o parâmetro aqui
 fun NavGraph(navController: NavHostController) {
-    // A linha "val navController = rememberNavController()" é removida daqui,
-    // pois ele agora é recebido como parâmetro.
-
     NavHost(navController = navController, startDestination = AppRoutes.TELA_INICIAL) {
 
         composable(AppRoutes.TELA_INICIAL) { CadastroScreen(navController) }
@@ -48,7 +44,6 @@ fun NavGraph(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val nome = backStackEntry.arguments?.getString("nome") ?: "Usuário"
-            val email = backStackEntry.arguments?.getString("email") ?: ""
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
             TelaBemVindoCuidador(navController = navController, nome = nome, uid = uid)
         }
@@ -63,7 +58,6 @@ fun NavGraph(navController: NavHostController) {
             )
         ) { backStackEntry ->
             val nome = backStackEntry.arguments?.getString("nome") ?: "Usuário"
-            val email = backStackEntry.arguments?.getString("email") ?: ""
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
             TelaBemVindoProfissionalSaude(navController = navController, nome = nome, uid = uid)
         }
@@ -96,6 +90,23 @@ fun NavGraph(navController: NavHostController) {
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
             val tipo = backStackEntry.arguments?.getSerializable("tipo") as TipoUsuario
             TelaPacientesVinculados(navController, uid, tipo)
+        }
+
+        // NOVA ROTA PARA A TELA DE AÇÕES DO PACIENTE
+        composable(
+            route = "${AppRoutes.ACOES_PACIENTE}/{pacienteUid}/{pacienteNome}", // ROTA ATUALIZADA
+            arguments = listOf(
+                navArgument("pacienteUid") { type = NavType.StringType }, // NOVO ARGUMENTO
+                navArgument("pacienteNome") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: "" // PEGAR O UID
+            val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
+            TelaAcoesPaciente(
+                navController = navController,
+                pacienteUid = pacienteUid, // PASSAR O UID
+                pacienteNome = pacienteNome
+            )
         }
     }
 }
