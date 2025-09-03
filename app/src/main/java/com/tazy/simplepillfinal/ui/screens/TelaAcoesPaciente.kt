@@ -26,7 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.R
+import com.tazy.simplepillfinal.navigation.AppRoutes
 import java.net.URLDecoder
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Composable
@@ -82,18 +84,27 @@ fun TelaAcoesPaciente(
         Spacer(modifier = Modifier.height(60.dp))
 
         // Botões de Ação
-        val actions = listOf(
-            "Solicitar exames", "Prescrever medicações", "Solicitar vacinação",
+        // ATUALIZAÇÃO AQUI
+        ActionButton(text = "Prescrever medicações") {
+            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+            navController.navigate("${AppRoutes.PRESCREVER_MEDICACAO}/$pacienteUid/$encodedNome")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Outros botões (ainda como TODOs)
+        val otherActions = listOf(
+            "Solicitar exames", "Solicitar vacinação",
             "Registrar internação", "Cadastro fisioterapêutico", "Cadastro saúde mental",
             "Cadastro nutricional"
         )
 
-        actions.forEach { action ->
+        otherActions.forEach { action ->
             ActionButton(text = action) {
                 // TODO: Implementar a lógica de navegação ou ação para cada botão
             }
             Spacer(modifier = Modifier.height(16.dp))
         }
+
 
         Spacer(modifier = Modifier.weight(1f))
 

@@ -10,6 +10,8 @@ import androidx.navigation.navArgument
 import com.tazy.simplepillfinal.CadastroScreen
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.ui.screens.*
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun NavGraph(navController: NavHostController) {
@@ -92,21 +94,46 @@ fun NavGraph(navController: NavHostController) {
             TelaPacientesVinculados(navController, uid, tipo)
         }
 
-        // NOVA ROTA PARA A TELA DE AÇÕES DO PACIENTE
+        // ROTA PARA A TELA DE AÇÕES DO PACIENTE
         composable(
-            route = "${AppRoutes.ACOES_PACIENTE}/{pacienteUid}/{pacienteNome}", // ROTA ATUALIZADA
+            route = "${AppRoutes.ACOES_PACIENTE}/{pacienteUid}/{pacienteNome}",
             arguments = listOf(
-                navArgument("pacienteUid") { type = NavType.StringType }, // NOVO ARGUMENTO
+                navArgument("pacienteUid") { type = NavType.StringType },
                 navArgument("pacienteNome") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: "" // PEGAR O UID
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
             val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
             TelaAcoesPaciente(
                 navController = navController,
-                pacienteUid = pacienteUid, // PASSAR O UID
+                pacienteUid = pacienteUid,
                 pacienteNome = pacienteNome
             )
+        }
+
+        // NOVA ROTA PARA PRESCREVER MEDICAÇÃO
+        composable(
+            route = "${AppRoutes.PRESCREVER_MEDICACAO}/{pacienteUid}/{pacienteNome}",
+            arguments = listOf(
+                navArgument("pacienteUid") { type = NavType.StringType },
+                navArgument("pacienteNome") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            val pacienteNomeEncoded = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
+            val pacienteNome = URLDecoder.decode(pacienteNomeEncoded, StandardCharsets.UTF_8.toString())
+            TelaPrescreverMedicacao(navController, pacienteUid, pacienteNome)
+        }
+
+        // NOVA ROTA PARA O PACIENTE VER SUAS MEDICAÇÕES
+        composable(
+            route = "${AppRoutes.MINHAS_MEDICACOES}/{pacienteUid}",
+            arguments = listOf(
+                navArgument("pacienteUid") { type = NavType.StringType }
+            )
+        ) {backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            TelaMinhasMedicacoes(navController, pacienteUid)
         }
     }
 }

@@ -3,6 +3,8 @@ package com.tazy.simplepillfinal.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.tazy.simplepillfinal.model.Medicacao
 import com.tazy.simplepillfinal.model.Paciente
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.model.Usuario
@@ -101,5 +103,36 @@ class AuthRepository {
         return querySnapshot.documents.mapNotNull { doc ->
             doc.toObject(Paciente::class.java)
         }
+    }
+
+    // <-- FUNÇÃO NOVA -->
+    suspend fun prescreverMedicacao(pacienteUid: String, nome: String, dosagem: String, frequencia: String, duracao: String, observacoes: String) {
+        val profissionalUid = auth.currentUser?.uid ?: throw Exception("Usuário não logado.")
+
+        // Criando um novo documento na coleção de medicações
+        val medicacaoRef = firestore.collection(FirestoreCollections.MEDICACOES).document()
+
+        val medicacao = Medicacao(
+            id = medicacaoRef.id,
+            pacienteUid = pacienteUid,
+            nome = nome,
+            dosagem = dosagem,
+            frequencia = frequencia,
+            duracao = duracao,
+            observacoes = observacoes,
+        )
+
+        medicacaoRef.set(medicacao).await()
+    }
+
+    // <-- FUNÇÃO NOVA -->
+    suspend fun getMedicacoes(pacienteUid: String): List<Medicacao> {
+        val querySnapshot = firestore.collection(FirestoreCollections.MEDICACOES)
+            .whereEqualTo("pacienteUid", pacienteUid)
+            .orderBy("dataPrescricao", Query.Direction.DESCENDING)
+            .get()
+            .await()
+
+        return querySnapshot.toObjects(Medicacao::class.java)
     }
 }
