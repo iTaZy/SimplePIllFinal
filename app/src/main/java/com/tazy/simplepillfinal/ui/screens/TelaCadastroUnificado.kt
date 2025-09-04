@@ -39,9 +39,8 @@ fun TelaCadastroUnificado(
     val decodedPacienteNome = URLDecoder.decode(pacienteNome, StandardCharsets.UTF_8.toString())
     val decodedAcao = URLDecoder.decode(acao, StandardCharsets.UTF_8.toString())
 
-    val backgroundColor = Color(0xFFE2C64D) // Amarelo do design
+    val backgroundColor = Color(0xFFE2C64D)
 
-    // Usamos um Box para sobrepor o conteúdo sobre o fundo amarelo
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -52,7 +51,6 @@ fun TelaCadastroUnificado(
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Cabeçalho similar ao da TelaAcoesPaciente
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -67,9 +65,8 @@ fun TelaCadastroUnificado(
                     color = Color.Black,
                     lineHeight = 36.sp
                 )
-                // Usando o icone de pessoa, você pode substituir por um icone de caneta
                 Image(
-                    painter = painterResource(id = R.drawable.ic_person_placeholder), // Assumindo que você tem esse recurso
+                    painter = painterResource(id = R.drawable.ic_person_placeholder),
                     contentDescription = "Foto do Paciente",
                     modifier = Modifier
                         .size(80.dp)
@@ -80,11 +77,10 @@ fun TelaCadastroUnificado(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Cartão branco para o conteúdo principal
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f) // Preenche o espaço restante
+                    .weight(1f)
                     .padding(horizontal = 8.dp),
                 shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -108,10 +104,9 @@ fun TelaCadastroUnificado(
                             color = Color.Black,
                             textAlign = TextAlign.Center
                         )
-                        // Ícone de lápis/caneta ao lado do título (similar ao design)
                         Spacer(Modifier.width(8.dp))
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_edit_pencil), // Você precisará deste recurso
+                            painter = painterResource(id = R.drawable.ic_edit_pencil),
                             contentDescription = "Editar",
                             tint = Color.Black,
                             modifier = Modifier.size(24.dp)
@@ -120,7 +115,6 @@ fun TelaCadastroUnificado(
 
                     Spacer(Modifier.height(32.dp))
 
-                    // Conteúdo dinâmico da subtela
                     when (decodedAcao) {
                         "Exames" -> {
                             SubtelaExames()
@@ -145,9 +139,8 @@ fun TelaCadastroUnificado(
                         }
                     }
 
-                    Spacer(Modifier.weight(1f)) // Empurra os botões para baixo
+                    Spacer(Modifier.weight(1f))
 
-                    // Botões "Voltar" e "Salvar" na parte inferior do cartão branco
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -165,11 +158,10 @@ fun TelaCadastroUnificado(
                         Button(
                             onClick = {
                                 // TODO: Implementar lógica de salvar usando o pacienteUid
-                                // Por exemplo: viewModel.salvarExame(pacienteUid, ...)
                             },
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = backgroundColor, // O botão "Salvar" pode usar o amarelo
+                                containerColor = backgroundColor,
                                 contentColor = Color.Black
                             ),
                             modifier = Modifier
@@ -185,9 +177,7 @@ fun TelaCadastroUnificado(
     }
 }
 
-// As subtelas (SubtelaExames, SubtelaVacinacao, etc.) agora só precisam se preocupar com seus próprios campos.
-// Elas não precisam de Scaffold, TopAppBar ou botões de navegação, pois o TelaCadastroUnificado já os fornece.
-
+// As subtelas permanecem as mesmas
 @Composable
 private fun SubtelaExames() {
     var exame by remember { mutableStateOf("") }
@@ -226,7 +216,6 @@ private fun SubtelaExames() {
         )
     }
 }
-
 @Composable
 private fun SubtelaVacinacao() {
     var vacina1 by remember { mutableStateOf("") }

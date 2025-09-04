@@ -1,4 +1,4 @@
-// CRIE ESTE NOVO ARQUIVO: ui/screens/LobbyLayout.kt
+// F_ARQUIVO: ui/screens/LobbyLayout.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.Canvas
@@ -29,7 +29,6 @@ fun LobbyLayout(
     navController: NavController,
     nome: String,
     backgroundColor: Color,
-    // Este parâmetro permite que cada lobby insira seus próprios botões
     content: @Composable ColumnScope.() -> Unit
 ) {
     Box(
@@ -37,7 +36,6 @@ fun LobbyLayout(
             .fillMaxSize()
             .background(backgroundColor)
     ) {
-        // Curva branca no topo
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -57,7 +55,6 @@ fun LobbyLayout(
             )
         }
 
-        // Conteúdo principal
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,7 +68,7 @@ fun LobbyLayout(
                 fontSize = 32.sp,
                 color = Color.Black,
                 fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.SansSerif // Exemplo de fonte
+                fontFamily = FontFamily.SansSerif
             )
             Text(
                 text = nome,
@@ -81,20 +78,15 @@ fun LobbyLayout(
             )
 
             Spacer(modifier = Modifier.height(150.dp))
-
-            // Aqui é onde os botões específicos de cada lobby serão inseridos
             content()
-
             Spacer(modifier = Modifier.weight(1f))
 
-            // Logo na parte inferior
             Image(
                 painter = painterResource(id = R.drawable.logo_simple_pill),
                 contentDescription = "Logo Simple Pill",
                 modifier = Modifier.size(150.dp)
             )
 
-            // Link "Voltar"
             Text(
                 text = "Voltar",
                 fontSize = 18.sp,
@@ -108,7 +100,6 @@ fun LobbyLayout(
     }
 }
 
-// Botão reutilizável para os lobbies
 @Composable
 fun LobbyButton(text: String, onClick: () -> Unit) {
     Button(
@@ -120,5 +111,22 @@ fun LobbyButton(text: String, onClick: () -> Unit) {
             .height(60.dp)
     ) {
         Text(text, fontSize = 20.sp, color = Color.Black)
+    }
+}
+
+@Composable
+fun ActionButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        shape = RoundedCornerShape(50),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.White,
+            contentColor = Color.Black
+        ),
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .height(50.dp)
+    ) {
+        Text(text = text, fontSize = 16.sp, fontWeight = FontWeight.Medium)
     }
 }

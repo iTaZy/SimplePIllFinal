@@ -4,8 +4,6 @@ package com.tazy.simplepillfinal.navigation
 object AppRoutes {
     const val TELA_INICIAL = "tela_inicial"
     const val CADASTRO_GERAL = "cadastro_geral"
-
-    // Rotas de boas-vindas (lobbies)
     const val BEM_VINDO_PACIENTE = "bem_vindo_paciente"
     const val BEM_VINDO_CUIDADOR = "bem_vindo_cuidador"
     const val BEM_VINDO_PROFISSIONAL = "bem_vindo_profissional"
@@ -14,5 +12,13 @@ object AppRoutes {
     const val ACOES_PACIENTE = "acoes_paciente"
     const val PRESCREVER_MEDICACAO = "prescrever_medicacao"
     const val MINHAS_MEDICACOES = "minhas_medicacoes"
-    const val CADASTRO_UNIFICADO = "cadastro_unificado" // <-- ADICIONE ESTA LINHA
+    const val CADASTRO_UNIFICADO = "cadastro_unificado"
+
+    // NOVAS ROTAS PARA AS TELAS DE VISUALIZAÇÃO DO PACIENTE
+    const val VISUALIZAR_EXAMES = "visualizar_exames"
+    const val VISUALIZAR_VACINACAO = "visualizar_vacinacao"
+    const val VISUALIZAR_INTERNACOES = "visualizar_internacoes"
+    const val VISUALIZAR_FISIOTERAPIA = "visualizar_fisioterapia"
+    const val VISUALIZAR_SAUDE_MENTAL = "visualizar_saude_mental"
+    const val VISUALIZAR_NUTRICAO = "visualizar_nutricao"
 }

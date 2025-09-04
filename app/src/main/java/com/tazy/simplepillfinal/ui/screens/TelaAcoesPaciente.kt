@@ -87,7 +87,6 @@ fun TelaAcoesPaciente(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botões que navegam para a nova tela unificada, passando o UID
         ActionButton(text = "Solicitar exames") {
             val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
             val encodedAcao = URLEncoder.encode("Exames", StandardCharsets.UTF_8.toString())
@@ -150,22 +149,5 @@ fun TelaAcoesPaciente(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-    }
-}
-
-@Composable
-private fun ActionButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.White,
-            contentColor = Color.Black
-        ),
-        modifier = Modifier
-            .fillMaxWidth(0.8f)
-            .height(50.dp)
-    ) {
-        Text(text = text, fontSize = 16.sp, fontWeight = FontWeight.Medium)
     }
 }

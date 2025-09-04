@@ -18,7 +18,6 @@ fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = AppRoutes.TELA_INICIAL) {
 
         composable(AppRoutes.TELA_INICIAL) { CadastroScreen(navController) }
-
         composable(AppRoutes.CADASTRO_GERAL) { TelaCadastroGeral(navController) }
 
         composable(
@@ -140,6 +139,55 @@ fun NavGraph(navController: NavHostController) {
             val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
             val acao = backStackEntry.arguments?.getString("acao") ?: ""
             TelaCadastroUnificado(navController, pacienteUid, pacienteNome, acao)
+        }
+
+        // ROTA GENÉRICA PARA VISUALIZAÇÃO DE INFORMAÇÕES DO PACIENTE
+        composable(
+            route = "${AppRoutes.VISUALIZAR_EXAMES}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            VisualizacaoGeralScreen(navController, pacienteUid, "Exames")
+        }
+
+        composable(
+            route = "${AppRoutes.VISUALIZAR_VACINACAO}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            VisualizacaoGeralScreen(navController, pacienteUid, "Vacinação")
+        }
+
+        composable(
+            route = "${AppRoutes.VISUALIZAR_INTERNACOES}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            VisualizacaoGeralScreen(navController, pacienteUid, "Internações")
+        }
+
+        composable(
+            route = "${AppRoutes.VISUALIZAR_FISIOTERAPIA}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            VisualizacaoGeralScreen(navController, pacienteUid, "Fisioterapia")
+        }
+
+        composable(
+            route = "${AppRoutes.VISUALIZAR_SAUDE_MENTAL}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            VisualizacaoGeralScreen(navController, pacienteUid, "Saúde Mental")
+        }
+
+        composable(
+            route = "${AppRoutes.VISUALIZAR_NUTRICAO}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            VisualizacaoGeralScreen(navController, pacienteUid, "Nutrição")
         }
     }
 }
