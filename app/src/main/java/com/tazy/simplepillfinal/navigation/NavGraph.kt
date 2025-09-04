@@ -21,7 +21,6 @@ fun NavGraph(navController: NavHostController) {
 
         composable(AppRoutes.CADASTRO_GERAL) { TelaCadastroGeral(navController) }
 
-        // ROTA PARA O LOBBY DO PACIENTE
         composable(
             route = "${AppRoutes.BEM_VINDO_PACIENTE}/{nome}/{email}/{uid}",
             arguments = listOf(
@@ -36,7 +35,6 @@ fun NavGraph(navController: NavHostController) {
             TelaBemVindoPaciente(navController = navController, nome = nome, email = email, uid = uid)
         }
 
-        // ROTA PARA O LOBBY DO CUIDADOR
         composable(
             route = "${AppRoutes.BEM_VINDO_CUIDADOR}/{nome}/{email}/{uid}",
             arguments = listOf(
@@ -50,7 +48,6 @@ fun NavGraph(navController: NavHostController) {
             TelaBemVindoCuidador(navController = navController, nome = nome, uid = uid)
         }
 
-        // ROTA PARA O LOBBY DO PROFISSIONAL DA SAÚDE
         composable(
             route = "${AppRoutes.BEM_VINDO_PROFISSIONAL}/{nome}/{email}/{uid}",
             arguments = listOf(
@@ -64,7 +61,6 @@ fun NavGraph(navController: NavHostController) {
             TelaBemVindoProfissionalSaude(navController = navController, nome = nome, uid = uid)
         }
 
-        // ROTA PARA VINCULAR PACIENTE
         composable(
             route = "${AppRoutes.VINCULAR_PACIENTE}/{associadoUid}/{associadoTipo}",
             arguments = listOf(
@@ -81,7 +77,6 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // ROTA PARA PACIENTES VINCULADOS
         composable(
             route = "${AppRoutes.PACIENTES_VINCULADOS}/{uid}/{tipo}",
             arguments = listOf(
@@ -94,7 +89,6 @@ fun NavGraph(navController: NavHostController) {
             TelaPacientesVinculados(navController, uid, tipo)
         }
 
-        // ROTA PARA A TELA DE AÇÕES DO PACIENTE
         composable(
             route = "${AppRoutes.ACOES_PACIENTE}/{pacienteUid}/{pacienteNome}",
             arguments = listOf(
@@ -111,7 +105,6 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // NOVA ROTA PARA PRESCREVER MEDICAÇÃO
         composable(
             route = "${AppRoutes.PRESCREVER_MEDICACAO}/{pacienteUid}/{pacienteNome}",
             arguments = listOf(
@@ -125,7 +118,6 @@ fun NavGraph(navController: NavHostController) {
             TelaPrescreverMedicacao(navController, pacienteUid, pacienteNome)
         }
 
-        // NOVA ROTA PARA O PACIENTE VER SUAS MEDICAÇÕES
         composable(
             route = "${AppRoutes.MINHAS_MEDICACOES}/{pacienteUid}",
             arguments = listOf(
@@ -134,6 +126,20 @@ fun NavGraph(navController: NavHostController) {
         ) {backStackEntry ->
             val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
             TelaMinhasMedicacoes(navController, pacienteUid)
+        }
+
+        composable(
+            route = "${AppRoutes.CADASTRO_UNIFICADO}/{pacienteUid}/{pacienteNome}/{acao}",
+            arguments = listOf(
+                navArgument("pacienteUid") { type = NavType.StringType },
+                navArgument("pacienteNome") { type = NavType.StringType },
+                navArgument("acao") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
+            val acao = backStackEntry.arguments?.getString("acao") ?: ""
+            TelaCadastroUnificado(navController, pacienteUid, pacienteNome, acao)
         }
     }
 }
