@@ -1,4 +1,4 @@
-// CRIE ESTE NOVO ARQUIVO: ui/screens/LinkPacienteViewModel.kt
+// F_ARQUIVO: ui/screens/LinkPacienteViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue
@@ -31,8 +31,7 @@ class LinkPacienteViewModel : ViewModel() {
         isLoading = true
         viewModelScope.launch {
             try {
-                // CORREÇÃO: Chamando a nova função para enviar a solicitação
-                authRepository.enviarSolicitacaoVinculacao(
+                authRepository.vincularPaciente(
                     emailPaciente = emailPaciente,
                     associadoUid = associadoUid,
                     associadoTipo = associadoTipo

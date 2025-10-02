@@ -1,3 +1,4 @@
+// F_ARQUIVO: ui/screens/TelaBemVindoPaciente.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.Image
@@ -33,13 +34,13 @@ fun TelaBemVindoPaciente(navController: NavController, nome: String, email: Stri
         nome = nome,
         backgroundColor = backgroundColor
     ) {
-        LobbyButton(text = "Confirmações") {
-            navController.navigate("${AppRoutes.CONFIRMACOES}/$uid")
+        // Novo botão adicionado
+        LobbyButton(text = "Confirmações de Vínculo") {
+            navController.navigate("${AppRoutes.CONFIRMACOES_VINCULO}/$uid")
         }
         Spacer(Modifier.height(24.dp))
-        // NOVO BOTÃO
-        LobbyButton(text = "Médicos Vinculados") {
-            navController.navigate("${AppRoutes.MEDICOS_VINCULADOS}/$uid")
+        LobbyButton(text = "Profissionais Vinculados") {
+            navController.navigate("${AppRoutes.PROFISSIONAIS_VINCULADOS}/$uid")
         }
         Spacer(Modifier.height(24.dp))
         LobbyButton(text = "Minhas Medicações") {

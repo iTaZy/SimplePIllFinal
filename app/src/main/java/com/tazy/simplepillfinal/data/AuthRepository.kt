@@ -1,16 +1,14 @@
+// F_ARQUIVO: data/AuthRepository.kt
 package com.tazy.simplepillfinal.data
 
+import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.firestore
 import com.tazy.simplepillfinal.model.*
 import kotlinx.coroutines.tasks.await
-import android.util.Log
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class AuthRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -53,7 +51,7 @@ class AuthRepository {
         throw Exception("Dados não encontrados para este tipo de perfil. Verifique o perfil selecionado.")
     }
 
-    suspend fun enviarSolicitacaoVinculacao(emailPaciente: String, associadoUid: String, associadoTipo: TipoUsuario) {
+    suspend fun vincularPaciente(emailPaciente: String, associadoUid: String, associadoTipo: TipoUsuario) {
         val querySnapshot = firestore.collection(FirestoreCollections.PACIENTES)
             .whereEqualTo("email", emailPaciente)
             .limit(1)
@@ -67,108 +65,43 @@ class AuthRepository {
         val pacienteDoc = querySnapshot.documents.first()
         val pacienteUid = pacienteDoc.id
 
-        val campoParaAtualizar = when (associadoTipo) {
-            TipoUsuario.CUIDADOR -> "cuidadoresPendentes"
-            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisPendentes"
-            else -> throw Exception("Tipo de perfil inválido para solicitação de vinculação.")
-        }
-
-        val solicitanteDoc = firestore.collection(
-            if (associadoTipo == TipoUsuario.CUIDADOR) FirestoreCollections.CUIDADORES
-            else FirestoreCollections.PROFISSIONAIS_DA_SAUDE
-        ).document(associadoUid).get().await()
-
-        val solicitacao = VinculacaoPendente(
-            solicitanteUid = associadoUid,
-            solicitanteNome = solicitanteDoc.getString("nome") ?: "Nome Desconhecido"
+        // Ao invés de vincular diretamente, cria uma solicitação
+        val solicitacao = SolicitacaoVinculo(
+            remetenteUid = associadoUid,
+            remetenteTipo = associadoTipo.name,
+            destinatarioUid = pacienteUid
         )
+        firestore.collection("solicitacoesVinculo").add(solicitacao).await()
+    }
 
-        val atualizacao = hashMapOf<String, Any>(
-            campoParaAtualizar to FieldValue.arrayUnion(solicitacao)
-        )
-
-        firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid)
-            .update(atualizacao)
+    // NOVA FUNÇÃO: Obtém solicitações de vínculo pendentes para um usuário
+    suspend fun getSolicitacoesPendentes(uid: String): List<SolicitacaoVinculo> {
+        val querySnapshot = firestore.collection("solicitacoesVinculo")
+            .whereEqualTo("destinatarioUid", uid)
+            .get()
             .await()
+        return querySnapshot.toObjects(SolicitacaoVinculo::class.java)
     }
 
-    suspend fun getSolicitacoesPendentes(pacienteUid: String): List<SolicitacaoVinculacao> {
-        val pacienteDoc = firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid).get().await()
-        if (!pacienteDoc.exists()) {
-            throw Exception("Paciente não encontrado.")
-        }
-        val profPendentes = pacienteDoc.get("profissionaisPendentes") as? List<Map<String, Any>>
-        val cuidadorPendentes = pacienteDoc.get("cuidadoresPendentes") as? List<Map<String, Any>>
+    // NOVA FUNÇÃO: Aceita uma solicitação de vínculo
+    suspend fun aceitarVinculacao(solicitacao: SolicitacaoVinculo) {
+        val pacienteDocRef = firestore.collection(FirestoreCollections.PACIENTES).document(solicitacao.destinatarioUid)
 
-        val solicitacoes = mutableListOf<SolicitacaoVinculacao>()
-
-        profPendentes?.forEach {
-            solicitacoes.add(SolicitacaoVinculacao(
-                solicitanteUid = it["solicitanteUid"] as String,
-                solicitanteNome = it["solicitanteNome"] as String,
-                tipo = TipoUsuario.PROFISSIONAL_SAUDE
-            ))
-        }
-        cuidadorPendentes?.forEach {
-            solicitacoes.add(SolicitacaoVinculacao(
-                solicitanteUid = it["solicitanteUid"] as String,
-                solicitanteNome = it["solicitanteNome"] as String,
-                tipo = TipoUsuario.CUIDADOR
-            ))
+        val campoParaAtualizar = when (solicitacao.remetenteTipo) {
+            "CUIDADOR" -> "cuidadoresIds"
+            "PROFISSIONAL_SAUDE" -> "profissionaisIds"
+            else -> throw Exception("Tipo de perfil inválido para vinculação.")
         }
 
-        return solicitacoes
+        pacienteDocRef.update(campoParaAtualizar, FieldValue.arrayUnion(solicitacao.remetenteUid)).await()
+
+        // Remove a solicitação após aceitar
+        firestore.collection("solicitacoesVinculo").document(solicitacao.id).delete().await()
     }
 
-    suspend fun aceitarVinculacao(pacienteUid: String, solicitanteUid: String, tipo: TipoUsuario) {
-        val solicitacaoCampo = if (tipo == TipoUsuario.CUIDADOR) "cuidadoresPendentes" else "profissionaisPendentes"
-        val vinculoCampo = if (tipo == TipoUsuario.CUIDADOR) "cuidadoresIds" else "profissionaisIds"
-
-        val solicitanteDoc = firestore.collection(
-            if (tipo == TipoUsuario.CUIDADOR) FirestoreCollections.CUIDADORES
-            else FirestoreCollections.PROFISSIONAIS_DA_SAUDE
-        ).document(solicitanteUid).get().await()
-
-        val solicitacao = VinculacaoPendente(
-            solicitanteUid = solicitanteUid,
-            solicitanteNome = solicitanteDoc.getString("nome") ?: "Nome Desconhecido"
-        )
-
-        val pacienteRef = firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid)
-
-        firestore.runTransaction { transaction ->
-            val pacienteDoc = transaction.get(pacienteRef)
-            val solicitacoesPendentes = (pacienteDoc.get(solicitacaoCampo) as? List<Map<String, Any>>)?.toMutableList() ?: mutableListOf()
-            val vinculosExistentes = (pacienteDoc.get(vinculoCampo) as? List<String>)?.toMutableList() ?: mutableListOf()
-
-            val solicitacaoParaRemover = solicitacoesPendentes.find { it["solicitanteUid"] == solicitanteUid }
-            if (solicitacaoParaRemover != null) {
-                solicitacoesPendentes.remove(solicitacaoParaRemover)
-                if (solicitanteUid !in vinculosExistentes) {
-                    vinculosExistentes.add(solicitanteUid)
-                }
-                transaction.update(pacienteRef, solicitacaoCampo, solicitacoesPendentes)
-                transaction.update(pacienteRef, vinculoCampo, vinculosExistentes)
-            }
-        }.await()
-    }
-
-    suspend fun negarVinculacao(pacienteUid: String, solicitanteUid: String, tipo: TipoUsuario) {
-        val solicitacaoCampo = if (tipo == TipoUsuario.CUIDADOR) "cuidadoresPendentes" else "profissionaisPendentes"
-
-        val solicitanteDoc = firestore.collection(
-            if (tipo == TipoUsuario.CUIDADOR) FirestoreCollections.CUIDADORES
-            else FirestoreCollections.PROFISSIONAIS_DA_SAUDE
-        ).document(solicitanteUid).get().await()
-
-        val solicitacao = VinculacaoPendente(
-            solicitanteUid = solicitanteUid,
-            solicitanteNome = solicitanteDoc.getString("nome") ?: "Nome Desconhecido"
-        )
-
-        firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid)
-            .update(solicitacaoCampo, FieldValue.arrayRemove(solicitacao))
-            .await()
+    // NOVA FUNÇÃO: Nega uma solicitação de vínculo
+    suspend fun negarVinculacao(solicitacaoId: String) {
+        firestore.collection("solicitacoesVinculo").document(solicitacaoId).delete().await()
     }
 
     suspend fun getPacientesVinculados(uid: String, tipo: TipoUsuario): List<Paciente> {
@@ -187,6 +120,74 @@ class AuthRepository {
             doc.toObject(Paciente::class.java)
         }
     }
+
+    suspend fun getProfissionaisECuidadoresVinculados(pacienteUid: String): List<Usuario> {
+        val pacienteDoc = firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid).get().await()
+        if (!pacienteDoc.exists()) {
+            return emptyList()
+        }
+
+        val profissionaisIds = pacienteDoc.get("profissionaisIds") as? List<String> ?: emptyList()
+        val cuidadoresIds = pacienteDoc.get("cuidadoresIds") as? List<String> ?: emptyList()
+
+        val vinculados = mutableListOf<Usuario>()
+
+        if (profissionaisIds.isNotEmpty()) {
+            val profQuery = firestore.collection(FirestoreCollections.PROFISSIONAIS_DA_SAUDE)
+                .whereIn("uid", profissionaisIds)
+                .get()
+                .await()
+            vinculados.addAll(profQuery.documents.map { doc ->
+                Usuario(doc.id, doc.getString("nome") ?: "", doc.getString("email") ?: "", TipoUsuario.PROFISSIONAL_SAUDE)
+            })
+        }
+
+        if (cuidadoresIds.isNotEmpty()) {
+            val cuidadorQuery = firestore.collection(FirestoreCollections.CUIDADORES)
+                .whereIn("uid", cuidadoresIds)
+                .get()
+                .await()
+            vinculados.addAll(cuidadorQuery.documents.map { doc ->
+                Usuario(doc.id, doc.getString("nome") ?: "", doc.getString("email") ?: "", TipoUsuario.CUIDADOR)
+            })
+        }
+
+        return vinculados
+    }
+
+    // NOVA FUNÇÃO ADICIONADA AQUI
+    suspend fun getMedicosVinculados(uid: String, tipo: TipoUsuario): List<Medico> {
+        // A lógica assume que um Paciente (uid) quer ver os seus médicos vinculados.
+        if (tipo != TipoUsuario.PACIENTE) {
+            // Se um cuidador ou médico tentar usar esta função, retorna uma lista vazia ou lança um erro.
+            // Ajuste conforme a necessidade da sua aplicação.
+            return emptyList()
+        }
+
+        val pacienteDoc = firestore.collection(FirestoreCollections.PACIENTES).document(uid).get().await()
+        if (!pacienteDoc.exists()) {
+            return emptyList()
+        }
+
+        // Pega a lista de IDs dos profissionais de saúde do documento do paciente
+        val profissionaisIds = pacienteDoc.get("profissionaisIds") as? List<String> ?: emptyList()
+
+        if (profissionaisIds.isEmpty()) {
+            return emptyList()
+        }
+
+        // Busca na coleção de PROFISSIONAIS_DA_SAUDE todos os documentos cujos UIDs estão na lista
+        val medicosQuery = firestore.collection(FirestoreCollections.PROFISSIONAIS_DA_SAUDE)
+            .whereIn("uid", profissionaisIds)
+            .get()
+            .await()
+
+        // Mapeia os documentos encontrados para objetos da classe Medico
+        return medicosQuery.documents.mapNotNull { doc ->
+            doc.toObject(Medico::class.java)
+        }
+    }
+
 
     suspend fun prescreverMedicacao(pacienteUid: String, nome: String, dosagem: String, frequencia: String, duracao: String, observacoes: String) {
         val medicacaoRef = firestore.collection(FirestoreCollections.MEDICACOES).document()
@@ -340,48 +341,5 @@ class AuthRepository {
             .get()
             .await()
         return querySnapshot.toObjects(Nutricao::class.java)
-    }
-
-    // CORREÇÃO: Busca as informações de um profissional de saúde por ID
-    suspend fun getUsuario(uid: String): Usuario? {
-        return try {
-            val userDoc = firestore.collection(FirestoreCollections.PROFISSIONAIS_DA_SAUDE).document(uid).get().await()
-            // Assume que o documento na coleção de profissionais também é um objeto Usuario
-            userDoc.toObject(Usuario::class.java)
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Falha ao buscar usuário: ${e.message}")
-            null
-        }
-    }
-
-    suspend fun getPaciente(pacienteUid: String): Paciente? {
-        return try {
-            val pacienteDoc = firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid).get().await()
-            pacienteDoc.toObject(Paciente::class.java)
-        } catch (e: Exception) {
-            Log.e("AuthRepository", "Falha ao buscar paciente: ${e.message}")
-            null
-        }
-    }
-
-    // CORREÇÃO: Remove a vinculação apenas do documento do paciente
-    suspend fun desfazerVinculo(pacienteUid: String, profissionalUid: String, password: String) {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            throw Exception("Nenhum usuário logado.")
-        }
-
-        val credential = EmailAuthProvider.getCredential(currentUser.email!!, password)
-        currentUser.reauthenticate(credential).await()
-
-        firestore.runTransaction { transaction ->
-            val pacienteRef = firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid)
-            val pacienteDoc = transaction.get(pacienteRef)
-
-            val profissionaisIds = pacienteDoc.toObject(Paciente::class.java)?.profissionaisIds.orEmpty().toMutableList()
-            profissionaisIds.remove(profissionalUid)
-            transaction.update(pacienteRef, "profissionaisIds", profissionaisIds)
-
-        }.await()
     }
 }

@@ -1,4 +1,4 @@
-// NOVO ARQUIVO: ui/screens/TelaConfirmacoes.kt
+// CRIE ESTE NOVO ARQUIVO: ui/screens/TelaProfissionaisVinculados.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.layout.*
@@ -7,31 +7,31 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.tazy.simplepillfinal.model.SolicitacaoVinculo
+import com.tazy.simplepillfinal.model.TipoUsuario
+import com.tazy.simplepillfinal.model.Usuario
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TelaConfirmacoes(
+fun TelaProfissionaisVinculados(
     navController: NavController,
     pacienteUid: String,
-    viewModel: ConfirmacoesViewModel = viewModel()
+    viewModel: ProfissionaisVinculadosViewModel = viewModel()
 ) {
     LaunchedEffect(key1 = pacienteUid) {
-        viewModel.carregarSolicitacoes(pacienteUid)
+        viewModel.carregarVinculados(pacienteUid)
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Confirmações de Vínculo") },
+                title = { Text("Profissionais e Cuidadores") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -52,19 +52,15 @@ fun TelaConfirmacoes(
             when {
                 viewModel.isLoading -> CircularProgressIndicator()
                 viewModel.errorMessage != null -> Text(text = "Erro: ${viewModel.errorMessage}")
-                viewModel.solicitacoes.isEmpty() -> Text(text = "Nenhuma solicitação pendente.")
+                viewModel.vinculados.isEmpty() -> Text(text = "Nenhum profissional ou cuidador vinculado encontrado.")
                 else -> {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(viewModel.solicitacoes) { solicitacao ->
-                            SolicitacaoVinculoCard(
-                                solicitacao = solicitacao,
-                                onAceitar = { viewModel.aceitarVinculacao(solicitacao) },
-                                onNegar = { viewModel.negarVinculacao(solicitacao) }
-                            )
+                        items(viewModel.vinculados) { usuario ->
+                            VinculadoCard(usuario)
                         }
                     }
                 }
@@ -74,41 +70,25 @@ fun TelaConfirmacoes(
 }
 
 @Composable
-fun SolicitacaoVinculoCard(
-    solicitacao: SolicitacaoVinculo,
-    onAceitar: () -> Unit,
-    onNegar: () -> Unit
-) {
+fun VinculadoCard(usuario: Usuario) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            Text(text = usuario.nome, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = "E-mail: ${usuario.email}", style = MaterialTheme.typography.bodyMedium)
             Text(
-                text = "Solicitação de Vínculo",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                text = "Tipo: ${
+                    when (usuario.tipo) {
+                        TipoUsuario.CUIDADOR -> "Cuidador"
+                        TipoUsuario.PROFISSIONAL_SAUDE -> "Profissional de Saúde"
+                        else -> "Desconhecido"
+                    }
+                }",
+                style = MaterialTheme.typography.bodySmall
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Tipo: ${solicitacao.remetenteTipo}", style = MaterialTheme.typography.bodyMedium)
-            Text(text = "UID: ${solicitacao.remetenteUid}", style = MaterialTheme.typography.bodySmall)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
-            ) {
-                Button(
-                    onClick = onAceitar,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Aceitar")
-                }
-                OutlinedButton(onClick = onNegar) {
-                    Text("Negar")
-                }
-            }
         }
     }
 }
