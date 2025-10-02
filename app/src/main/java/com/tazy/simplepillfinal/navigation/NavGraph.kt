@@ -1,4 +1,3 @@
-// F_ARQUIVO: navigation/NavGraph.kt
 package com.tazy.simplepillfinal.navigation
 
 import androidx.compose.runtime.Composable
@@ -139,6 +138,32 @@ fun NavGraph(navController: NavHostController) {
             val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
             val acao = backStackEntry.arguments?.getString("acao") ?: ""
             TelaCadastroUnificado(navController, pacienteUid, pacienteNome, acao)
+        }
+
+        composable(
+            route = "${AppRoutes.CONFIRMACOES}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            TelaConfirmacoes(navController, pacienteUid)
+        }
+
+        // NOVA ROTA: Lista de Médicos Vinculados
+        composable(
+            route = "${AppRoutes.MEDICOS_VINCULADOS}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            TelaMedicosVinculados(navController, pacienteUid)
+        }
+
+        // NOVA ROTA: Detalhes do Médico
+        composable(
+            route = "${AppRoutes.DETALHES_MEDICO}/{pacienteUid}",
+            arguments = listOf(navArgument("pacienteUid") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            TelaDetalhesMedico(navController, pacienteUid)
         }
 
         // ROTA GENÉRICA PARA VISUALIZAÇÃO DE INFORMAÇÕES DO PACIENTE

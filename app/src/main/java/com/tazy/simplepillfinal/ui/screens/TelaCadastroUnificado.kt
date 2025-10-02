@@ -1,6 +1,7 @@
 // F_ARQUIVO: ui/screens/TelaCadastroUnificado.kt
 package com.tazy.simplepillfinal.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,11 +19,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.R
 import java.net.URLDecoder
@@ -34,12 +37,27 @@ fun TelaCadastroUnificado(
     navController: NavController,
     pacienteUid: String,
     pacienteNome: String,
-    acao: String
+    acao: String,
+    viewModel: CadastroUnificadoViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val decodedPacienteNome = URLDecoder.decode(pacienteNome, StandardCharsets.UTF_8.toString())
     val decodedAcao = URLDecoder.decode(acao, StandardCharsets.UTF_8.toString())
 
     val backgroundColor = Color(0xFFE2C64D)
+
+    LaunchedEffect(viewModel.saveSuccess) {
+        if (viewModel.saveSuccess) {
+            Toast.makeText(context, "Registro salvo com sucesso!", Toast.LENGTH_SHORT).show()
+            navController.popBackStack()
+        }
+    }
+
+    LaunchedEffect(viewModel.errorMessage) {
+        viewModel.errorMessage?.let {
+            Toast.makeText(context, "Erro: $it", Toast.LENGTH_LONG).show()
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -47,8 +65,7 @@ fun TelaCadastroUnificado(
             .background(backgroundColor)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
@@ -116,27 +133,13 @@ fun TelaCadastroUnificado(
                     Spacer(Modifier.height(32.dp))
 
                     when (decodedAcao) {
-                        "Exames" -> {
-                            SubtelaExames()
-                        }
-                        "Vacinação" -> {
-                            SubtelaVacinacao()
-                        }
-                        "Internação" -> {
-                            SubtelaInternacao()
-                        }
-                        "Fisioterapia" -> {
-                            SubtelaFisioterapia()
-                        }
-                        "Saúde mental" -> {
-                            SubtelaSaudeMental()
-                        }
-                        "Nutrição" -> {
-                            SubtelaNutricao()
-                        }
-                        else -> {
-                            Text("Ação não reconhecida.", color = Color.Gray)
-                        }
+                        "Exames" -> SubtelaExames(viewModel)
+                        "Vacinação" -> SubtelaVacinacao(viewModel)
+                        "Internação" -> SubtelaInternacao(viewModel)
+                        "Fisioterapia" -> SubtelaFisioterapia(viewModel)
+                        "Saúde mental" -> SubtelaSaudeMental(viewModel)
+                        "Nutrição" -> SubtelaNutricao(viewModel)
+                        else -> Text("Ação não reconhecida.", color = Color.Gray)
                     }
 
                     Spacer(Modifier.weight(1f))
@@ -156,9 +159,8 @@ fun TelaCadastroUnificado(
                             modifier = Modifier.clickable { navController.popBackStack() }
                         )
                         Button(
-                            onClick = {
-                                // TODO: Implementar lógica de salvar usando o pacienteUid
-                            },
+                            onClick = { viewModel.onSaveClick(pacienteUid, decodedAcao) },
+                            enabled = !viewModel.isLoading,
                             shape = RoundedCornerShape(50),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = backgroundColor,
@@ -168,7 +170,11 @@ fun TelaCadastroUnificado(
                                 .width(120.dp)
                                 .height(50.dp)
                         ) {
-                            Text("Salvar", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                            Text(
+                                if (viewModel.isLoading) "Salvando..." else "Salvar",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     }
                 }
@@ -177,269 +183,201 @@ fun TelaCadastroUnificado(
     }
 }
 
-// As subtelas permanecem as mesmas
+// As subtelas agora recebem o ViewModel como parâmetro
 @Composable
-private fun SubtelaExames() {
-    var exame by remember { mutableStateOf("") }
-    var unidade by remember { mutableStateOf("") }
-    var diagnostico by remember { mutableStateOf("") }
-
+private fun SubtelaExames(viewModel: CadastroUnificadoViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = exame,
-            onValueChange = { exame = it },
+            value = viewModel.examePedido,
+            onValueChange = { viewModel.examePedido = it },
             label = { Text("Exame pedido") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = unidade,
-            onValueChange = { unidade = it },
+            value = viewModel.unidadeExame,
+            onValueChange = { viewModel.unidadeExame = it },
             label = { Text("Unidade") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = diagnostico,
-            onValueChange = { diagnostico = it },
+            value = viewModel.diagnosticoExame,
+            onValueChange = { viewModel.diagnosticoExame = it },
             label = { Text("Suspeita de diagnóstico") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
     }
 }
-@Composable
-private fun SubtelaVacinacao() {
-    var vacina1 by remember { mutableStateOf("") }
-    var vacina2 by remember { mutableStateOf("") }
-    var vacina3 by remember { mutableStateOf("") }
-    var vacina4 by remember { mutableStateOf("") }
 
+@Composable
+private fun SubtelaVacinacao(viewModel: CadastroUnificadoViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = vacina1,
-            onValueChange = { vacina1 = it },
+            value = viewModel.vacina1,
+            onValueChange = { viewModel.vacina1 = it },
             label = { Text("Prescrever vacina 1") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = vacina2,
-            onValueChange = { vacina2 = it },
+            value = viewModel.vacina2,
+            onValueChange = { viewModel.vacina2 = it },
             label = { Text("Prescrever vacina 2") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = vacina3,
-            onValueChange = { vacina3 = it },
+            value = viewModel.vacina3,
+            onValueChange = { viewModel.vacina3 = it },
             label = { Text("Prescrever vacina 3") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = vacina4,
-            onValueChange = { vacina4 = it },
+            value = viewModel.vacina4,
+            onValueChange = { viewModel.vacina4 = it },
             label = { Text("Prescrever vacina 4") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
     }
 }
 
 @Composable
-private fun SubtelaInternacao() {
-    var unidade by remember { mutableStateOf("") }
-    var motivo by remember { mutableStateOf("") }
-    var data by remember { mutableStateOf("") }
-
+private fun SubtelaInternacao(viewModel: CadastroUnificadoViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = unidade,
-            onValueChange = { unidade = it },
+            value = viewModel.unidadeInternacao,
+            onValueChange = { viewModel.unidadeInternacao = it },
             label = { Text("Unidade") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = motivo,
-            onValueChange = { motivo = it },
+            value = viewModel.motivoInternacao,
+            onValueChange = { viewModel.motivoInternacao = it },
             label = { Text("Motivo") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = data,
-            onValueChange = { data = it },
+            value = viewModel.dataInternacao,
+            onValueChange = { viewModel.dataInternacao = it },
             label = { Text("Data") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
     }
 }
 
 @Composable
-private fun SubtelaFisioterapia() {
-    var data by remember { mutableStateOf("") }
-    var local by remember { mutableStateOf("") }
-    var sessoes by remember { mutableStateOf("") }
-    var diagnostico by remember { mutableStateOf("") }
-
+private fun SubtelaFisioterapia(viewModel: CadastroUnificadoViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = data,
-            onValueChange = { data = it },
+            value = viewModel.dataFisioterapia,
+            onValueChange = { viewModel.dataFisioterapia = it },
             label = { Text("Data") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = local,
-            onValueChange = { local = it },
+            value = viewModel.localFisioterapia,
+            onValueChange = { viewModel.localFisioterapia = it },
             label = { Text("Local") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = sessoes,
-            onValueChange = { sessoes = it },
+            value = viewModel.sessoesFisioterapia,
+            onValueChange = { viewModel.sessoesFisioterapia = it },
             label = { Text("Número de sessões") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = diagnostico,
-            onValueChange = { diagnostico = it },
+            value = viewModel.diagnosticoFisioterapia,
+            onValueChange = { viewModel.diagnosticoFisioterapia = it },
             label = { Text("Diagnóstico") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
     }
 }
 
 @Composable
-private fun SubtelaSaudeMental() {
-    var unidade by remember { mutableStateOf("") }
-    var tratamento by remember { mutableStateOf("") }
-    var data by remember { mutableStateOf("") }
-    var duracao by remember { mutableStateOf("") }
-
+private fun SubtelaSaudeMental(viewModel: CadastroUnificadoViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = unidade,
-            onValueChange = { unidade = it },
+            value = viewModel.unidadeSaudeMental,
+            onValueChange = { viewModel.unidadeSaudeMental = it },
             label = { Text("Unidade") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = tratamento,
-            onValueChange = { tratamento = it },
+            value = viewModel.tratamentoSaudeMental,
+            onValueChange = { viewModel.tratamentoSaudeMental = it },
             label = { Text("Tipo de tratamento") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = data,
-            onValueChange = { data = it },
+            value = viewModel.dataSaudeMental,
+            onValueChange = { viewModel.dataSaudeMental = it },
             label = { Text("Data") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = duracao,
-            onValueChange = { duracao = it },
+            value = viewModel.duracaoSaudeMental,
+            onValueChange = { viewModel.duracaoSaudeMental = it },
             label = { Text("Duração") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
     }
 }
 
 @Composable
-private fun SubtelaNutricao() {
-    var data by remember { mutableStateOf("") }
-    var local by remember { mutableStateOf("") }
-    var diagnostico by remember { mutableStateOf("") }
-
+private fun SubtelaNutricao(viewModel: CadastroUnificadoViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = data,
-            onValueChange = { data = it },
+            value = viewModel.dataNutricao,
+            onValueChange = { viewModel.dataNutricao = it },
             label = { Text("Data") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = local,
-            onValueChange = { local = it },
+            value = viewModel.localNutricao,
+            onValueChange = { viewModel.localNutricao = it },
             label = { Text("Local") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(
-            value = diagnostico,
-            onValueChange = { diagnostico = it },
+            value = viewModel.diagnosticoNutricao,
+            onValueChange = { viewModel.diagnosticoNutricao = it },
             label = { Text("Diagnóstico") },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
-            )
+            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray)
         )
     }
 }

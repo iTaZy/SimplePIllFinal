@@ -1,4 +1,3 @@
-// F_ARQUIVO: navigation/AppRoutes.kt
 package com.tazy.simplepillfinal.navigation
 
 object AppRoutes {
@@ -13,6 +12,9 @@ object AppRoutes {
     const val PRESCREVER_MEDICACAO = "prescrever_medicacao"
     const val MINHAS_MEDICACOES = "minhas_medicacoes"
     const val CADASTRO_UNIFICADO = "cadastro_unificado"
+    const val CONFIRMACOES = "confirmacoes"
+    const val MEDICOS_VINCULADOS = "medicos_vinculados" // NOVA ROTA
+    const val DETALHES_MEDICO = "detalhes_medico" // NOVA ROTA
 
     // NOVAS ROTAS PARA AS TELAS DE VISUALIZAÇÃO DO PACIENTE
     const val VISUALIZAR_EXAMES = "visualizar_exames"

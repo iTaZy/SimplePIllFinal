@@ -25,7 +25,7 @@ fun TelaVincularPaciente(
 
     LaunchedEffect(viewModel.linkSuccess) {
         if (viewModel.linkSuccess) {
-            Toast.makeText(context, "Paciente vinculado com sucesso!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Solicitação de vínculo enviada com sucesso!", Toast.LENGTH_SHORT).show()
             navController.popBackStack()
         }
     }
@@ -45,7 +45,7 @@ fun TelaVincularPaciente(
         Text("Vincular Paciente", style = MaterialTheme.typography.headlineMedium)
         Spacer(Modifier.height(8.dp))
         Text(
-            "Digite o e-mail do paciente que já possui cadastro no Simple Pill.",
+            "Digite o e-mail do paciente para enviar uma solicitação de vinculação.",
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.height(24.dp))
@@ -66,7 +66,7 @@ fun TelaVincularPaciente(
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            Text(if (viewModel.isLoading) "Vinculando..." else "Vincular")
+            Text(if (viewModel.isLoading) "Enviando..." else "Enviar Solicitação")
         }
         Spacer(Modifier.height(8.dp))
         TextButton(onClick = { navController.popBackStack() }) {

@@ -31,7 +31,8 @@ class LinkPacienteViewModel : ViewModel() {
         isLoading = true
         viewModelScope.launch {
             try {
-                authRepository.vincularPaciente(
+                // CORREÇÃO: Chamando a nova função para enviar a solicitação
+                authRepository.enviarSolicitacaoVinculacao(
                     emailPaciente = emailPaciente,
                     associadoUid = associadoUid,
                     associadoTipo = associadoTipo

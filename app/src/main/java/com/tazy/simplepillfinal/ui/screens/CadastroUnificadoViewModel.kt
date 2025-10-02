@@ -1,0 +1,77 @@
+// CRIE ESTE NOVO ARQUIVO: ui/screens/CadastroUnificadoViewModel.kt
+package com.tazy.simplepillfinal.ui.screens
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.tazy.simplepillfinal.data.AuthRepository
+import kotlinx.coroutines.launch
+
+class CadastroUnificadoViewModel : ViewModel() {
+    private val authRepository = AuthRepository()
+
+    var isLoading by mutableStateOf(false)
+        private set
+    var saveSuccess by mutableStateOf(false)
+        private set
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
+
+    // Estados para os campos de cada formulário
+    // Exames
+    var examePedido by mutableStateOf("")
+    var unidadeExame by mutableStateOf("")
+    var diagnosticoExame by mutableStateOf("")
+
+    // Vacinação
+    var vacina1 by mutableStateOf("")
+    var vacina2 by mutableStateOf("")
+    var vacina3 by mutableStateOf("")
+    var vacina4 by mutableStateOf("")
+
+    // Internação
+    var unidadeInternacao by mutableStateOf("")
+    var motivoInternacao by mutableStateOf("")
+    var dataInternacao by mutableStateOf("")
+
+    // Fisioterapia
+    var dataFisioterapia by mutableStateOf("")
+    var localFisioterapia by mutableStateOf("")
+    var sessoesFisioterapia by mutableStateOf("")
+    var diagnosticoFisioterapia by mutableStateOf("")
+
+    // Saúde Mental
+    var unidadeSaudeMental by mutableStateOf("")
+    var tratamentoSaudeMental by mutableStateOf("")
+    var dataSaudeMental by mutableStateOf("")
+    var duracaoSaudeMental by mutableStateOf("")
+
+    // Nutrição
+    var dataNutricao by mutableStateOf("")
+    var localNutricao by mutableStateOf("")
+    var diagnosticoNutricao by mutableStateOf("")
+
+    fun onSaveClick(pacienteUid: String, acao: String) {
+        isLoading = true
+        viewModelScope.launch {
+            try {
+                when (acao) {
+                    "Exames" -> authRepository.salvarExame(pacienteUid, examePedido, unidadeExame, diagnosticoExame)
+                    "Vacinação" -> authRepository.salvarVacinacao(pacienteUid, vacina1, vacina2, vacina3, vacina4)
+                    "Internação" -> authRepository.salvarInternacao(pacienteUid, unidadeInternacao, motivoInternacao, dataInternacao)
+                    "Fisioterapia" -> authRepository.salvarFisioterapia(pacienteUid, dataFisioterapia, localFisioterapia, sessoesFisioterapia, diagnosticoFisioterapia)
+                    "Saúde mental" -> authRepository.salvarSaudeMental(pacienteUid, unidadeSaudeMental, tratamentoSaudeMental, dataSaudeMental, duracaoSaudeMental)
+                    "Nutrição" -> authRepository.salvarNutricao(pacienteUid, dataNutricao, localNutricao, diagnosticoNutricao)
+                    else -> throw IllegalArgumentException("Ação não reconhecida.")
+                }
+                saveSuccess = true
+            } catch (e: Exception) {
+                errorMessage = e.message ?: "Ocorreu um erro ao salvar o registro de $acao."
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+}
