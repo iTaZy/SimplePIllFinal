@@ -7,31 +7,69 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tazy.simplepillfinal.data.AuthRepository
-import com.tazy.simplepillfinal.model.Medico // Assuming you have a Medico model
+import com.tazy.simplepillfinal.model.Medico
 import com.tazy.simplepillfinal.model.TipoUsuario
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
-// --- FIX: Rename the class to match the file name ---
 class MedicosVinculadosViewModel : ViewModel() {
     private val authRepository: AuthRepository = AuthRepository()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    // --- FIX: Adjust variables to refer to "Medicos" ---
-    var medicos by mutableStateOf<List<Medico>>(emptyList()) // Changed from Paciente to Medico
+    var medicos by mutableStateOf<List<Medico>>(emptyList())
         private set
     var isLoading by mutableStateOf(false)
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    // --- FIX: Adjust function and logic to load "Medicos" ---
-    fun carregarMedicos(uid: String, tipo: TipoUsuario) { // Renamed function
+    // --- NEW: State for the selected doctor details screen ---
+    var selectedMedico by mutableStateOf<Medico?>(null)
+        private set
+
+    // --- NEW: State for the password confirmation dialog ---
+    var showPasswordDialog by mutableStateOf(false)
+        private set
+
+    fun carregarMedicosVinculados(pacienteUid: String) {
         isLoading = true
         viewModelScope.launch {
             try {
-                // You'll likely need a method like getMedicosVinculados in your repository
-                medicos = authRepository.getMedicosVinculados(uid, tipo)
+                medicos = authRepository.getMedicosVinculados(pacienteUid, TipoUsuario.PACIENTE)
             } catch (e: Exception) {
-                errorMessage = e.message ?: "Falha ao carregar médicos." // Updated error message
+                errorMessage = e.message ?: "Falha ao carregar médicos."
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+
+    // --- NEW: Function to set the selected doctor and navigate ---
+    fun selecionarMedico(medico: Medico) {
+        selectedMedico = medico
+    }
+
+    // --- NEW: Function to toggle the password confirmation dialog ---
+    fun togglePasswordDialog(show: Boolean) {
+        showPasswordDialog = show
+    }
+
+    // --- NEW: Function to unlink a doctor after password confirmation ---
+    fun desfazerVinculo(pacienteUid: String, password: String) {
+        isLoading = true
+        errorMessage = null
+        viewModelScope.launch {
+            try {
+                // Re-authenticate user
+                authRepository.reauthenticateUser(password)
+                // Unlink doctor
+                authRepository.desvincularMedico(pacienteUid, selectedMedico!!.id)
+                // Reload list and clear state
+                carregarMedicosVinculados(pacienteUid)
+                showPasswordDialog = false
+                selectedMedico = null
+            } catch (e: Exception) {
+                errorMessage = e.message ?: "Falha ao desvincular. Verifique sua senha."
             } finally {
                 isLoading = false
             }

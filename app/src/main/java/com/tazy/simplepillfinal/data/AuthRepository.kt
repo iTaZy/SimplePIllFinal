@@ -3,6 +3,7 @@ package com.tazy.simplepillfinal.data
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -49,6 +50,21 @@ class AuthRepository {
         }
 
         throw Exception("Dados não encontrados para este tipo de perfil. Verifique o perfil selecionado.")
+    }
+
+    // NOVO: Função para reautenticar o usuário
+    suspend fun reauthenticateUser(password: String) {
+        val user = auth.currentUser ?: throw Exception("Usuário não logado.")
+        val credential = EmailAuthProvider.getCredential(user.email!!, password)
+        user.reauthenticate(credential).await()
+    }
+
+    // NOVO: Função para desvincular um médico
+    suspend fun desvincularMedico(pacienteUid: String, medicoUid: String) {
+        val pacienteDocRef = firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid)
+
+        // Remove o UID do médico da lista de profissionais
+        pacienteDocRef.update("profissionaisIds", FieldValue.arrayRemove(medicoUid)).await()
     }
 
     suspend fun vincularPaciente(emailPaciente: String, associadoUid: String, associadoTipo: TipoUsuario) {
@@ -107,7 +123,7 @@ class AuthRepository {
     suspend fun getPacientesVinculados(uid: String, tipo: TipoUsuario): List<Paciente> {
         val campoDeBusca = when (tipo) {
             TipoUsuario.CUIDADOR -> "cuidadoresIds"
-            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisIds"
+            TipoUsuario.CUIDADOR -> "profissionaisIds"
             else -> throw IllegalArgumentException("Tipo de perfil inválido para buscar pacientes.")
         }
 
