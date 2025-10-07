@@ -1,4 +1,3 @@
-// F_ARQUIVO: ui/screens/TelaDetalhesMedico.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import android.widget.Toast
@@ -14,7 +13,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.tazy.simplepillfinal.model.Usuario
+import com.tazy.simplepillfinal.model.TipoUsuario
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -25,10 +24,14 @@ fun TelaDetalhesMedico(
     pacienteUid: String,
     medicoId: String,
     medicoNome: String,
-    viewModel: MedicosVinculadosViewModel = viewModel()
+    viewModel: DetalhesProfissionalViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val decodedMedicoNome = URLDecoder.decode(medicoNome, StandardCharsets.UTF_8.toString())
+
+    // Carrega os dados do profissional ao entrar na tela
+    LaunchedEffect(key1 = medicoId) {
+        viewModel.carregarProfissional(medicoId, TipoUsuario.PROFISSIONAL_SAUDE)
+    }
 
     Scaffold(
         topBar = {
@@ -42,27 +45,56 @@ fun TelaDetalhesMedico(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = decodedMedicoNome,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.height(8.dp))
-            // Removido o campo de e-mail pois ele não é passado na navegação.
-            Spacer(Modifier.height(24.dp))
-            Button(
-                onClick = { viewModel.togglePasswordDialog(true) },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Desfazer Vínculo")
+            when {
+                viewModel.isLoading -> CircularProgressIndicator()
+                viewModel.errorMessage != null -> Text(text = "Erro: ${viewModel.errorMessage}")
+                viewModel.profissional != null -> {
+                    val profissional = viewModel.profissional!!
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        Text(
+                            text = profissional.nome,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "E-mail: ${profissional.email}",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "Função: ${
+                                when (profissional.tipo) {
+                                    TipoUsuario.CUIDADOR -> "Cuidador"
+                                    TipoUsuario.PROFISSIONAL_SAUDE -> "Profissional de Saúde"
+                                    else -> "Desconhecido"
+                                }
+                            }",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        // Adicionar outros campos aqui (telefone, etc.) se existirem no modelo de dados
+                        Spacer(Modifier.height(24.dp))
+                        Button(
+                            onClick = { viewModel.togglePasswordDialog(true) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Desfazer Vínculo")
+                        }
+                    }
+                }
+                else -> {
+                    Text(text = "Profissional não encontrado.")
+                }
             }
         }
     }
