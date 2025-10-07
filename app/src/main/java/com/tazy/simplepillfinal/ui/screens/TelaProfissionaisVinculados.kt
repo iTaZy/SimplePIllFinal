@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.model.Usuario
 import com.tazy.simplepillfinal.navigation.AppRoutes
+import com.tazy.simplepillfinal.ui.components.UsuarioListItem
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -64,41 +65,23 @@ fun TelaProfissionaisVinculados(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(viewModel.vinculados) { usuario ->
-                            VinculadoCard(usuario) {
-                                // CORREÇÃO: Passando todos os argumentos necessários para a rota
-                                val encodedNome = URLEncoder.encode(usuario.nome, StandardCharsets.UTF_8.toString())
-                                navController.navigate("${AppRoutes.DETALHES_MEDICO}/$pacienteUid/${usuario.uid}/$encodedNome")
-                            }
+                            UsuarioListItem(
+                                nome = usuario.nome,
+                                email = usuario.email,
+                                tipo = when (usuario.tipo) {
+                                    TipoUsuario.PROFISSIONAL_SAUDE -> "Profissional de Saúde"
+                                    TipoUsuario.CUIDADOR -> "Cuidador"
+                                    else -> "Desconhecido"
+                                },
+                                onClick = {
+                                    val encodedNome = URLEncoder.encode(usuario.nome, StandardCharsets.UTF_8.toString())
+                                    navController.navigate("${AppRoutes.DETALHES_MEDICO}/$pacienteUid/${usuario.uid}/$encodedNome")
+                                }
+                            )
                         }
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun VinculadoCard(usuario: Usuario, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick), // Adicionando o clickable aqui
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = usuario.nome, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "E-mail: ${usuario.email}", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                text = "Tipo: ${
-                    when (usuario.tipo) {
-                        TipoUsuario.CUIDADOR -> "Cuidador"
-                        TipoUsuario.PROFISSIONAL_SAUDE -> "Profissional de Saúde"
-                        else -> "Desconhecido"
-                    }
-                }",
-                style = MaterialTheme.typography.bodySmall
-            )
         }
     }
 }

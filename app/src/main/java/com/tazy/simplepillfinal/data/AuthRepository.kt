@@ -123,7 +123,7 @@ class AuthRepository {
     suspend fun getPacientesVinculados(uid: String, tipo: TipoUsuario): List<Paciente> {
         val campoDeBusca = when (tipo) {
             TipoUsuario.CUIDADOR -> "cuidadoresIds"
-            TipoUsuario.CUIDADOR -> "profissionaisIds"
+            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisIds" // CORREÇÃO AQUI
             else -> throw IllegalArgumentException("Tipo de perfil inválido para buscar pacientes.")
         }
 
@@ -134,6 +134,26 @@ class AuthRepository {
 
         return querySnapshot.documents.mapNotNull { doc ->
             doc.toObject(Paciente::class.java)
+        }
+    }
+
+    suspend fun getUsuarioByUid(uid: String, tipo: TipoUsuario): Usuario? {
+        val collectionPath = when (tipo) {
+            TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
+            TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
+            TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
+        }
+        val userDoc = firestore.collection(collectionPath).document(uid).get().await()
+
+        return if (userDoc.exists()) {
+            Usuario(
+                uid = userDoc.id,
+                nome = userDoc.getString("nome") ?: "",
+                email = userDoc.getString("email") ?: "",
+                tipo = tipo
+            )
+        } else {
+            null
         }
     }
 
@@ -171,7 +191,6 @@ class AuthRepository {
         return vinculados
     }
 
-    // NOVA FUNÇÃO ADICIONADA AQUI
     suspend fun getMedicosVinculados(uid: String, tipo: TipoUsuario): List<Medico> {
         // A lógica assume que um Paciente (uid) quer ver os seus médicos vinculados.
         if (tipo != TipoUsuario.PACIENTE) {
