@@ -1,4 +1,3 @@
-// CRIE ESTE NOVO ARQUIVO: ui/screens/TelaProfissionaisVinculados.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.layout.*
@@ -16,6 +15,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.model.Usuario
+import com.tazy.simplepillfinal.navigation.AppRoutes
+import com.tazy.simplepillfinal.ui.components.UsuarioListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,35 +61,26 @@ fun TelaProfissionaisVinculados(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(viewModel.vinculados) { usuario ->
-                            VinculadoCard(usuario)
+                            UsuarioListItem(
+                                nome = usuario.nome,
+                                email = usuario.email,
+                                tipo = when (usuario.tipo) {
+                                    TipoUsuario.CUIDADOR -> "Cuidador"
+                                    TipoUsuario.PROFISSIONAL_SAUDE -> "Profissional de Saúde"
+                                    else -> "Desconhecido"
+                                },
+                                onClick = {
+                                    if (usuario.tipo == TipoUsuario.PROFISSIONAL_SAUDE) {
+                                        navController.navigate("${AppRoutes.DETALHES_MEDICO}/${usuario.uid}")
+                                    } else {
+                                        // Implemente aqui a navegação para uma tela de detalhes de cuidador, se necessário
+                                    }
+                                }
+                            )
                         }
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun VinculadoCard(usuario: Usuario) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = usuario.nome, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "E-mail: ${usuario.email}", style = MaterialTheme.typography.bodyMedium)
-            Text(
-                text = "Tipo: ${
-                    when (usuario.tipo) {
-                        TipoUsuario.CUIDADOR -> "Cuidador"
-                        TipoUsuario.PROFISSIONAL_SAUDE -> "Profissional de Saúde"
-                        else -> "Desconhecido"
-                    }
-                }",
-                style = MaterialTheme.typography.bodySmall
-            )
         }
     }
 }

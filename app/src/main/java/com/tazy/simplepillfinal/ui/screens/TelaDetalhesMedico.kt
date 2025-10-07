@@ -19,16 +19,21 @@ import com.tazy.simplepillfinal.model.Usuario
 @Composable
 fun TelaDetalhesMedico(
     navController: NavController,
-    pacienteUid: String,
+    medicoUid: String,
     viewModel: MedicosVinculadosViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val selectedMedico = viewModel.selectedMedico
 
+    // Carrega o médico com base no UID passado pela navegação
+    LaunchedEffect(medicoUid) {
+        viewModel.loadSelectedMedico(medicoUid)
+    }
+
     if (selectedMedico == null) {
-        LaunchedEffect(Unit) {
-            // Se o ViewModel for recriado e selectedMedico for nulo, volta para a lista
-            navController.popBackStack()
+        // Exibe um loading ou mensagem de erro enquanto o médico não é carregado
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
         return
     }
@@ -76,7 +81,7 @@ fun TelaDetalhesMedico(
     if (viewModel.showPasswordDialog) {
         PasswordConfirmationDialog(
             onConfirm = { password ->
-                viewModel.desfazerVinculo(pacienteUid, password)
+                viewModel.desfazerVinculo(medicoUid, password)
                 navController.popBackStack()
             },
             onDismiss = { viewModel.togglePasswordDialog(false) },

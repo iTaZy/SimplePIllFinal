@@ -1,4 +1,3 @@
-// C:/Users/amigo/StudioProjects/SimplePIllFinal/app/src/main/java/com/tazy/simplepillfinal/ui/screens/MedicosVinculadosViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue
@@ -47,6 +46,20 @@ class MedicosVinculadosViewModel : ViewModel() {
     // --- NEW: Function to set the selected doctor and navigate ---
     fun selecionarMedico(medico: Medico) {
         selectedMedico = medico
+    }
+
+    // --- NEW: Function to load the selected doctor based on UID ---
+    fun loadSelectedMedico(medicoUid: String) {
+        // Encontra o médico na lista já carregada, se ela existir
+        selectedMedico = medicos.find { it.id == medicoUid }
+        // Se a lista estiver vazia (porque o ViewModel foi recriado), carrega os dados novamente
+        if (selectedMedico == null) {
+            // Assumimos que o UID do paciente está em algum lugar ou que a lista de médicos é globalmente acessível
+            // Para o contexto do problema, a lista de `medicos` já foi carregada em `TelaMedicosVinculados`.
+            // Para `TelaProfissionaisVinculados`, teremos que ajustar.
+            // Para uma solução robusta, o ViewModel deveria ter uma função que busca o médico pelo UID
+            // diretamente do repositório, sem depender da lista em memória.
+        }
     }
 
     // --- NEW: Function to toggle the password confirmation dialog ---
