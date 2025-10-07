@@ -1,3 +1,4 @@
+// F_ARQUIVO: ui/screens/TelaDetalhesMedico.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import android.widget.Toast
@@ -14,29 +15,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.Usuario
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TelaDetalhesMedico(
     navController: NavController,
-    medicoUid: String,
+    pacienteUid: String,
+    medicoId: String,
+    medicoNome: String,
     viewModel: MedicosVinculadosViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val selectedMedico = viewModel.selectedMedico
-
-    // Carrega o médico com base no UID passado pela navegação
-    LaunchedEffect(medicoUid) {
-        viewModel.loadSelectedMedico(medicoUid)
-    }
-
-    if (selectedMedico == null) {
-        // Exibe um loading ou mensagem de erro enquanto o médico não é carregado
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
+    val decodedMedicoNome = URLDecoder.decode(medicoNome, StandardCharsets.UTF_8.toString())
 
     Scaffold(
         topBar = {
@@ -59,15 +51,12 @@ fun TelaDetalhesMedico(
             verticalArrangement = Arrangement.Top
         ) {
             Text(
-                text = selectedMedico.nome,
+                text = decodedMedicoNome,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
             Spacer(Modifier.height(8.dp))
-            Text(
-                text = selectedMedico.email,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            // Removido o campo de e-mail pois ele não é passado na navegação.
             Spacer(Modifier.height(24.dp))
             Button(
                 onClick = { viewModel.togglePasswordDialog(true) },
@@ -81,7 +70,7 @@ fun TelaDetalhesMedico(
     if (viewModel.showPasswordDialog) {
         PasswordConfirmationDialog(
             onConfirm = { password ->
-                viewModel.desfazerVinculo(medicoUid, password)
+                viewModel.desfazerVinculo(pacienteUid, medicoId, password)
                 navController.popBackStack()
             },
             onDismiss = { viewModel.togglePasswordDialog(false) },

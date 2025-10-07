@@ -1,3 +1,4 @@
+// F_ARQUIVO: ui/screens/TelaMedicosVinculados.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.clickable
@@ -16,6 +17,8 @@ import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.Usuario
 import com.tazy.simplepillfinal.navigation.AppRoutes
 import com.tazy.simplepillfinal.ui.components.UsuarioListItem
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,8 +65,8 @@ fun TelaMedicosVinculados(
                                 email = medico.email,
                                 tipo = "Médico",
                                 onClick = {
-                                    viewModel.selecionarMedico(medico)
-                                    navController.navigate("${AppRoutes.DETALHES_MEDICO}/$pacienteUid")
+                                    val encodedMedicoNome = URLEncoder.encode(medico.nome, StandardCharsets.UTF_8.toString())
+                                    navController.navigate("${AppRoutes.DETALHES_MEDICO}/$pacienteUid/${medico.id}/$encodedMedicoNome")
                                 }
                             )
                         }

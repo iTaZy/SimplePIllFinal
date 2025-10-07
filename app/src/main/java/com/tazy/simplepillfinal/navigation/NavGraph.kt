@@ -90,11 +90,17 @@ fun NavGraph(navController: NavHostController) {
 
         // NOVO: Adiciona a rota para a tela de detalhes do médico
         composable(
-            route = "${AppRoutes.DETALHES_MEDICO}/{medicoUid}",
-            arguments = listOf(navArgument("medicoUid") { type = NavType.StringType })
+            route = "${AppRoutes.DETALHES_MEDICO}/{pacienteUid}/{medicoId}/{medicoNome}",
+            arguments = listOf(
+                navArgument("pacienteUid") { type = NavType.StringType },
+                navArgument("medicoId") { type = NavType.StringType },
+                navArgument("medicoNome") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
-            val medicoUid = backStackEntry.arguments?.getString("medicoUid") ?: ""
-            TelaDetalhesMedico(navController, medicoUid)
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            val medicoId = backStackEntry.arguments?.getString("medicoId") ?: ""
+            val medicoNome = URLDecoder.decode(backStackEntry.arguments?.getString("medicoNome") ?: "", StandardCharsets.UTF_8.toString())
+            TelaDetalhesMedico(navController = navController, pacienteUid = pacienteUid, medicoId = medicoId, medicoNome = medicoNome)
         }
 
         composable(
