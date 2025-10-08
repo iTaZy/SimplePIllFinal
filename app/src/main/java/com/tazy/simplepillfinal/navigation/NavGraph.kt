@@ -134,6 +134,23 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
+        // NOVA ROTA PARA CUIDADORES
+        composable(
+            route = "${AppRoutes.VISUALIZAR_DADOS_PACIENTE}/{pacienteUid}/{pacienteNome}",
+            arguments = listOf(
+                navArgument("pacienteUid") { type = NavType.StringType },
+                navArgument("pacienteNome") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
+            val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
+            TelaVisualizacaoPaciente(
+                navController = navController,
+                pacienteUid = pacienteUid,
+                pacienteNome = pacienteNome
+            )
+        }
+
         composable(
             route = "${AppRoutes.PRESCREVER_MEDICACAO}/{pacienteUid}/{pacienteNome}",
             arguments = listOf(

@@ -71,7 +71,12 @@ fun TelaPacientesVinculados(
                             paciente = paciente,
                             onClick = {
                                 val encodedNome = URLEncoder.encode(paciente.nome, StandardCharsets.UTF_8.toString())
-                                navController.navigate("${AppRoutes.ACOES_PACIENTE}/${paciente.uid}/$encodedNome")
+                                // Lógica de navegação baseada no tipo de usuário
+                                if (tipo == TipoUsuario.PROFISSIONAL_SAUDE) {
+                                    navController.navigate("${AppRoutes.ACOES_PACIENTE}/${paciente.uid}/$encodedNome")
+                                } else if (tipo == TipoUsuario.CUIDADOR) {
+                                    navController.navigate("${AppRoutes.VISUALIZAR_DADOS_PACIENTE}/${paciente.uid}/$encodedNome")
+                                }
                             }
                         )
                     }

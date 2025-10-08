@@ -24,4 +24,6 @@ object AppRoutes {
     const val VISUALIZAR_FISIOTERAPIA = "visualizar_fisioterapia"
     const val VISUALIZAR_SAUDE_MENTAL = "visualizar_saude_mental"
     const val VISUALIZAR_NUTRICAO = "visualizar_nutricao"
+    // NOVA ROTA
+    const val VISUALIZAR_DADOS_PACIENTE = "visualizar_dados_paciente"
 }
