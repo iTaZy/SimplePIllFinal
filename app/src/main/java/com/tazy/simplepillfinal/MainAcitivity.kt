@@ -5,8 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.navigation.NavGraph
-import androidx.navigation.compose.rememberNavController // <-- IMPORTANTE: Adicione esta linha
+import androidx.navigation.compose.rememberNavController
 import com.tazy.simplepillfinal.navigation.NavGraph
 import com.tazy.simplepillfinal.ui.theme.SimplePillTheme
 
@@ -16,9 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SimplePillTheme {
-                // CORREÇÃO: Crie o NavController aqui
                 val navController = rememberNavController()
-                // E passe-o para o NavGraph
                 NavGraph(navController = navController)
             }
         }

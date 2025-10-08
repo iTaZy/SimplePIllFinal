@@ -15,7 +15,10 @@ import java.nio.charset.StandardCharsets
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = AppRoutes.TELA_INICIAL) {
+    NavHost(navController = navController, startDestination = AppRoutes.SPLASH_SCREEN) {
+
+        // Tela de Splash
+        composable(AppRoutes.SPLASH_SCREEN) { SplashScreen(navController) }
 
         composable(AppRoutes.TELA_INICIAL) { CadastroScreen(navController) }
         composable(AppRoutes.CADASTRO_GERAL) { TelaCadastroGeral(navController) }
@@ -134,7 +137,6 @@ fun NavGraph(navController: NavHostController) {
             )
         }
 
-        // NOVA ROTA PARA CUIDADORES
         composable(
             route = "${AppRoutes.VISUALIZAR_DADOS_PACIENTE}/{pacienteUid}/{pacienteNome}",
             arguments = listOf(

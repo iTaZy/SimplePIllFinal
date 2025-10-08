@@ -3,6 +3,7 @@ package com.tazy.simplepillfinal.navigation
 
 object AppRoutes {
     const val TELA_INICIAL = "tela_inicial"
+    const val SPLASH_SCREEN = "splash_screen" // NOVA ROTA
     const val CADASTRO_GERAL = "cadastro_geral"
     const val BEM_VINDO_PACIENTE = "bem_vindo_paciente"
     const val BEM_VINDO_CUIDADOR = "bem_vindo_cuidador"
