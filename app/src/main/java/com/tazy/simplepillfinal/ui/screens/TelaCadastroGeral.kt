@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.TipoUsuario
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,204 +46,213 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
         }
     }
 
-    val containerColor = Color(0xFF4369B9)
-
-    Box(modifier = Modifier.fillMaxSize().background(Color(0xFFE5F4F5))) {
-        // Fundo com gradiente e ondas
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE5F4F5))
+    ) {
+        // Top section with a different color for visual separation
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
-                .background(Color(0xFF4369B9))
-                .align(Alignment.TopCenter)
+                .height(200.dp)
+                .background(Color(0xFF73A5AD))
         ) {
-            // Este canvas é apenas um placeholder. Para o efeito da imagem, o ideal é usar um drawable ou um background mais complexo.
-            // O código abaixo cria um gradiente simples para aproximar o design.
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val width = size.width
-                val height = size.height
-                drawPath(
-                    path = Path().apply {
-                        moveTo(0f, height)
-                        cubicTo(
-                            width * 0.25f, height,
-                            width * 0.75f, height * 0.5f,
-                            width, height
-                        )
-                        lineTo(width, 0f)
-                        lineTo(0f, 0f)
-                        close()
-                    },
-                    color = Color(0xFF4369B9)
+            Text(
+                "Cadastro",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.Center)
+            )
+            IconButton(
+                onClick = { navController.popBackStack() },
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Voltar",
+                    tint = Color.White
                 )
             }
         }
 
+        // Main content column
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(Modifier.height(50.dp))
-            Text(
-                "Cadastro",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+            Spacer(modifier = Modifier.height(150.dp)) // Spacer to push content below the colored box
 
-            Spacer(Modifier.height(16.dp))
-            Card(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Text(
+                    "Eu sou:",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Text(
-                        "Eu sou:",
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        listOf(TipoUsuario.PACIENTE, TipoUsuario.CUIDADOR, TipoUsuario.PROFISSIONAL_SAUDE).forEach { tipo ->
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Checkbox(
-                                    checked = tipo in viewModel.perfisSelecionados,
-                                    onCheckedChange = { viewModel.togglePerfil(tipo) }
-                                )
-                                Text(text = tipo.name.replace("_", " ").lowercase().replaceFirstChar { it.titlecase() }, fontSize = 14.sp)
-                            }
-                        }
-                    }
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-                    OutlinedTextField(
-                        value = viewModel.nome,
-                        onValueChange = { viewModel.onNameChange(it) }, // Lógica de filtro aqui
-                        label = { Text("Nome Completo*") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    OutlinedTextField(
-                        value = viewModel.email,
-                        onValueChange = { viewModel.email = it },
-                        label = { Text("Email*") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    OutlinedTextField(
-                        value = viewModel.senha,
-                        onValueChange = { viewModel.senha = it },
-                        label = { Text("Senha*") },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    // Dica de senha
-                    Text(
-                        text = "Mínimo de 6 caracteres e uma letra maiúscula.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, top = 4.dp, bottom = 8.dp)
-                    )
-                    OutlinedTextField(
-                        value = viewModel.telefone,
-                        onValueChange = { viewModel.onPhoneChange(it) }, // Lógica de filtro aqui
-                        label = { Text("Telefone") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    OutlinedTextField(
-                        value = viewModel.idade,
-                        onValueChange = { viewModel.onAgeChange(it) }, // Lógica de filtro aqui
-                        label = { Text("Idade") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    OutlinedTextField(
-                        value = viewModel.endereco,
-                        onValueChange = { viewModel.endereco = it },
-                        label = { Text("Endereço") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    OutlinedTextField(
-                        value = viewModel.profissao,
-                        onValueChange = { viewModel.profissao = it },
-                        label = { Text("Profissão") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-
-                    if (TipoUsuario.PACIENTE in viewModel.perfisSelecionados) {
-                        Divider(modifier = Modifier.padding(vertical = 8.dp))
-                        Text("Informações de Paciente", style = MaterialTheme.typography.titleMedium)
-                        OutlinedTextField(
-                            value = viewModel.nacionalidade,
-                            onValueChange = { viewModel.onNationalityChange(it) },
-                            label = { Text("Nacionalidade") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        OutlinedTextField(
-                            value = viewModel.numSus,
-                            onValueChange = { viewModel.onSusChange(it) },
-                            label = { Text("Nº da carteira do SUS") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        OutlinedTextField(
-                            value = viewModel.unidadeSus,
-                            onValueChange = { viewModel.unidadeSus = it },
-                            label = { Text("Unidade de atendimento do SUS") },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                    }
-
-                    Spacer(Modifier.height(24.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Voltar",
-                            fontSize = 18.sp,
-                            textDecoration = TextDecoration.Underline,
-                            color = Color.Black,
-                            modifier = Modifier.clickable { navController.popBackStack() }
-                        )
-
-                        Button(
-                            onClick = { viewModel.onRegistrationClick() },
-                            enabled = !viewModel.isLoading,
-                            shape = RoundedCornerShape(50),
-                            colors = ButtonDefaults.buttonColors(containerColor = containerColor),
-                            modifier = Modifier.height(48.dp)
-                        ) {
+                    listOf(TipoUsuario.PACIENTE, TipoUsuario.CUIDADOR, TipoUsuario.PROFISSIONAL_SAUDE).forEach { tipo ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = tipo in viewModel.perfisSelecionados,
+                                onCheckedChange = { viewModel.togglePerfil(tipo) }
+                            )
                             Text(
-                                if (viewModel.isLoading) "Cadastrando..." else "Cadastrar",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
+                                text = tipo.name.replace("_", " ").lowercase().replaceFirstChar { it.titlecase() },
+                                fontSize = 14.sp
                             )
                         }
                     }
                 }
             }
+
+            OutlinedTextField(
+                value = viewModel.nome,
+                onValueChange = { viewModel.onNameChange(it) },
+                label = { Text("Nome Completo*") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            OutlinedTextField(
+                value = viewModel.email,
+                onValueChange = { viewModel.email = it },
+                label = { Text("Email*") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            OutlinedTextField(
+                value = viewModel.senha,
+                onValueChange = { viewModel.senha = it },
+                label = { Text("Senha*") },
+                visualTransformation = PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            Text(
+                text = "Mínimo de 6 caracteres e uma letra maiúscula.",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            // Novos campos de endereço
+            OutlinedTextField(
+                value = viewModel.cep,
+                onValueChange = {
+                    viewModel.cep = it
+                    if (it.length == 8) {
+                        viewModel.buscarEnderecoPorCep(it)
+                    }
+                },
+                label = { Text("CEP") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            OutlinedTextField(
+                value = viewModel.endereco,
+                onValueChange = { viewModel.endereco = it },
+                label = { Text("Endereço") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedTextField(
+                    value = viewModel.numero,
+                    onValueChange = { viewModel.numero = it },
+                    label = { Text("Número") },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                OutlinedTextField(
+                    value = viewModel.complemento,
+                    onValueChange = { viewModel.complemento = it },
+                    label = { Text("Complemento") },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
+
+            OutlinedTextField(
+                value = viewModel.telefone,
+                onValueChange = { viewModel.onPhoneChange(it) },
+                label = { Text("Telefone") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            OutlinedTextField(
+                value = viewModel.idade,
+                onValueChange = { viewModel.onAgeChange(it) },
+                label = { Text("Idade") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+            OutlinedTextField(
+                value = viewModel.profissao,
+                onValueChange = { viewModel.profissao = it },
+                label = { Text("Profissão") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            )
+
+            if (TipoUsuario.PACIENTE in viewModel.perfisSelecionados) {
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                Text("Informações de Paciente", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                OutlinedTextField(
+                    value = viewModel.nacionalidade,
+                    onValueChange = { viewModel.onNationalityChange(it) },
+                    label = { Text("Nacionalidade") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                OutlinedTextField(
+                    value = viewModel.numSus,
+                    onValueChange = { viewModel.onSusChange(it) },
+                    label = { Text("Nº da carteira do SUS") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                OutlinedTextField(
+                    value = viewModel.unidadeSus,
+                    onValueChange = { viewModel.unidadeSus = it },
+                    label = { Text("Unidade de atendimento do SUS") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Button(
+                onClick = { viewModel.onRegistrationClick() },
+                enabled = !viewModel.isLoading,
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.buttonColors(containerColor = containerColor),
+                modifier = Modifier.height(48.dp)
+            ) {
+                Text(
+                    if (viewModel.isLoading) "Cadastrando..." else "Cadastrar",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
         }
     }
 }

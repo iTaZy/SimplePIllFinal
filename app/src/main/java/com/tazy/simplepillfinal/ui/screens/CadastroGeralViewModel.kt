@@ -9,9 +9,11 @@ import androidx.lifecycle.viewModelScope
 import com.tazy.simplepillfinal.data.AuthRepository
 import com.tazy.simplepillfinal.model.TipoUsuario
 import kotlinx.coroutines.launch
+import com.tazy.simplepillfinal.data.CepApiService
 
 class CadastroGeralViewModel : ViewModel() {
     private val authRepository: AuthRepository = AuthRepository()
+    private val cepApiService = CepApiService.create()
 
     var perfisSelecionados by mutableStateOf(setOf<TipoUsuario>())
     fun togglePerfil(tipo: TipoUsuario) {
@@ -29,6 +31,10 @@ class CadastroGeralViewModel : ViewModel() {
     var idade by mutableStateOf("")
     var endereco by mutableStateOf("")
     var profissao by mutableStateOf("")
+    // Novos campos de endereço
+    var cep by mutableStateOf("")
+    var numero by mutableStateOf("")
+    var complemento by mutableStateOf("")
 
     var nacionalidade by mutableStateOf("")
     var numSus by mutableStateOf("")
@@ -41,21 +47,21 @@ class CadastroGeralViewModel : ViewModel() {
     // Funções de filtro de entrada
     fun onNameChange(input: String) {
         val filteredInput = input.filter { it.isLetter() || it.isWhitespace() }
-        if (filteredInput.length <= 50) { // Limita o tamanho para evitar inputs muito longos
+        if (filteredInput.length <= 50) {
             nome = filteredInput
         }
     }
 
     fun onAgeChange(input: String) {
         val filteredInput = input.filter { it.isDigit() }
-        if (filteredInput.length <= 3) { // Limita a idade para 3 dígitos
+        if (filteredInput.length <= 3) {
             idade = filteredInput
         }
     }
 
     fun onPhoneChange(input: String) {
         val filteredInput = input.filter { it.isDigit() }
-        if (filteredInput.length <= 15) { // Limita o telefone para 15 dígitos
+        if (filteredInput.length <= 15) {
             telefone = filteredInput
         }
     }
@@ -69,8 +75,26 @@ class CadastroGeralViewModel : ViewModel() {
 
     fun onSusChange(input: String) {
         val filteredInput = input.filter { it.isDigit() }
-        if (filteredInput.length <= 16) { // Limita o SUS para 16 dígitos
+        if (filteredInput.length <= 16) {
             numSus = filteredInput
+        }
+    }
+
+    // Nova função para buscar o endereço via CEP
+    fun buscarEnderecoPorCep(cep: String) {
+        if (cep.length == 8) {
+            viewModelScope.launch {
+                try {
+                    val enderecoApi = cepApiService.getAddress(cep)
+                    if (enderecoApi.erro != true) {
+                        endereco = "${enderecoApi.logradouro}, ${enderecoApi.bairro}, ${enderecoApi.localidade}, ${enderecoApi.uf}"
+                    } else {
+                        errorMessage = "CEP não encontrado."
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Falha ao buscar CEP. Verifique sua conexão."
+                }
+            }
         }
     }
 
@@ -110,7 +134,7 @@ class CadastroGeralViewModel : ViewModel() {
                     "nome" to nome,
                     "telefone" to telefone,
                     "idade" to idade,
-                    "endereco" to endereco,
+                    "endereco" to "$endereco, $numero, $complemento", // Novo formato de endereço
                     "profissao" to profissao
                 )
 
