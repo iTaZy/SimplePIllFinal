@@ -122,7 +122,7 @@ class CadastroGeralViewModel : ViewModel() {
         errorMessage = null
 
         if (nome.isBlank() || email.isBlank() || senha.isBlank() || perfisSelecionados.isEmpty()) {
-            errorMessage = "Nome, email, senha e ao menos um perfil são obrigatórios."
+            errorMessage = "Nome, e-mail, senha e ao menos um perfil são obrigatórios."
             return
         }
 

@@ -227,7 +227,6 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
                     shape = RoundedCornerShape(16.dp)
                 )
             }
-            // NOVO: Campos para Profissional de Saúde
             if (TipoUsuario.PROFISSIONAL_SAUDE in viewModel.perfisSelecionados) {
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
                 Text("Informações de Profissional", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)

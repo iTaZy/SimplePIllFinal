@@ -1,4 +1,4 @@
-// NOVO ARQUIVO: ui/screens/ConfirmacoesViewModel.kt
+// F_ARQUIVO: ui/screens/ConfirmacoesViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue

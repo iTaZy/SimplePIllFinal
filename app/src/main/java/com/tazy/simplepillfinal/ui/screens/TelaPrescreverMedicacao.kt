@@ -1,7 +1,9 @@
-// F_ARQUIVO: ui/screens/TelaPrescreverMedicacao.kt
+// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/ui/screens/TelaPrescreverMedicacao.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,7 +61,14 @@ fun TelaPrescreverMedicacao(
         }
     }
 
-    val backgroundColor = Color(0xFFE2C64D) // Amarelo do design
+    // Launcher para selecionar arquivo
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.arquivoUri = uri
+    }
+
+    val backgroundColor = Color(0xFFE2C64D)
 
     Box(
         modifier = Modifier
@@ -70,7 +79,6 @@ fun TelaPrescreverMedicacao(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Cabeçalho
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -97,7 +105,6 @@ fun TelaPrescreverMedicacao(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Cartão branco para o conteúdo
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -113,7 +120,6 @@ fun TelaPrescreverMedicacao(
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Título da tela
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -137,7 +143,6 @@ fun TelaPrescreverMedicacao(
 
                     Spacer(Modifier.height(32.dp))
 
-                    // Campos de texto para a prescrição
                     OutlinedTextField(
                         value = viewModel.nome,
                         onValueChange = { viewModel.nome = it },
@@ -173,9 +178,26 @@ fun TelaPrescreverMedicacao(
                         modifier = Modifier.fillMaxWidth(),
                         maxLines = 4
                     )
+                    Spacer(Modifier.height(16.dp))
+
+                    // Seção de Anexar Arquivo
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            onClick = { filePickerLauncher.launch("application/pdf") },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Anexar Arquivo (PDF)")
+                        }
+                        if (viewModel.arquivoUri != null) {
+                            Text(
+                                text = "Arquivo selecionado: ${viewModel.arquivoUri!!.lastPathSegment}",
+                                modifier = Modifier.padding(top = 8.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(32.dp))
 
-                    // Botões "Voltar" e "Salvar"
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

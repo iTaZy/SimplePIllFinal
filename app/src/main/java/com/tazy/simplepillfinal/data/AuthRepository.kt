@@ -3,6 +3,8 @@ package com.tazy.simplepillfinal.data
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -10,46 +12,63 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.tazy.simplepillfinal.model.*
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.storage.FirebaseStorage // Importar Firebase Storage
+import android.net.Uri // Importar a classe Uri
 
 class AuthRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance() // Instância do Firebase Storage
 
     suspend fun criarUsuario(email: String, senha: String, perfis: Map<TipoUsuario, Map<String, Any>>): String {
-        val authResult = auth.createUserWithEmailAndPassword(email, senha).await()
-        val uid = authResult.user?.uid ?: throw Exception("Erro ao obter UID do Auth.")
+        try {
+            val authResult = auth.createUserWithEmailAndPassword(email, senha).await()
+            val uid = authResult.user?.uid ?: throw Exception("Erro ao obter UID do Auth.")
 
-        for ((tipo, data) in perfis) {
+            for ((tipo, data) in perfis) {
+                val collectionPath = when (tipo) {
+                    TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
+                    TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
+                    TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
+                }
+                val dataComUid = data.toMutableMap().apply {
+                    put("uid", uid)
+                    put("email", email)
+                }
+                firestore.collection(collectionPath).document(uid).set(dataComUid).await()
+            }
+            return uid
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            throw Exception("O e-mail já está em uso ou a senha é inválida.")
+        } catch (e: Exception) {
+            throw Exception(e.message ?: "Ocorreu um erro desconhecido durante o cadastro.")
+        }
+    }
+
+    suspend fun autenticar(email: String, senha: String, tipo: TipoUsuario): Usuario {
+        try {
+            val authResult = auth.signInWithEmailAndPassword(email, senha).await()
+            val uid = authResult.user?.uid ?: throw Exception("Usuário não encontrado.")
+
             val collectionPath = when (tipo) {
                 TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
                 TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
                 TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
             }
-            val dataComUid = data.toMutableMap().apply {
-                put("uid", uid)
-                put("email", email)
+
+            val userDoc = firestore.collection(collectionPath).document(uid).get().await()
+            if (userDoc.exists()) {
+                return Usuario(uid, userDoc.getString("nome")!!, email, tipo)
             }
-            firestore.collection(collectionPath).document(uid).set(dataComUid).await()
+
+            throw Exception("Dados não encontrados para este tipo de perfil. Verifique o perfil selecionado.")
+        } catch (e: FirebaseAuthInvalidUserException) {
+            throw Exception("E-mail não cadastrado ou desativado.")
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            throw Exception("Senha incorreta. Tente novamente.")
+        } catch (e: Exception) {
+            throw Exception(e.message ?: "Ocorreu um erro desconhecido durante o login.")
         }
-        return uid
-    }
-
-    suspend fun autenticar(email: String, senha: String, tipo: TipoUsuario): Usuario {
-        val authResult = auth.signInWithEmailAndPassword(email, senha).await()
-        val uid = authResult.user?.uid ?: throw Exception("Usuário não encontrado.")
-
-        val collectionPath = when (tipo) {
-            TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
-            TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
-            TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
-        }
-
-        val userDoc = firestore.collection(collectionPath).document(uid).get().await()
-        if (userDoc.exists()) {
-            return Usuario(uid, userDoc.getString("nome")!!, email, tipo)
-        }
-
-        throw Exception("Dados não encontrados para este tipo de perfil. Verifique o perfil selecionado.")
     }
 
     fun signOut() {
@@ -59,7 +78,13 @@ class AuthRepository {
     suspend fun reauthenticateUser(password: String) {
         val user = auth.currentUser ?: throw Exception("Usuário não logado.")
         val credential = EmailAuthProvider.getCredential(user.email!!, password)
-        user.reauthenticate(credential).await()
+        try {
+            user.reauthenticate(credential).await()
+        } catch (e: FirebaseAuthInvalidCredentialsException) {
+            throw Exception("Senha incorreta. Por favor, insira sua senha novamente.")
+        } catch (e: Exception) {
+            throw Exception(e.message ?: "Falha na reautenticação. Tente novamente.")
+        }
     }
 
     suspend fun desvincularMedico(pacienteUid: String, medicoUid: String) {
@@ -119,7 +144,7 @@ class AuthRepository {
     suspend fun getPacientesVinculados(uid: String, tipo: TipoUsuario): List<Paciente> {
         val campoDeBusca = when (tipo) {
             TipoUsuario.CUIDADOR -> "cuidadoresIds"
-            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisIds" // CORREÇÃO AQUI
+            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisIds"
             else -> throw IllegalArgumentException("Tipo de perfil inválido para buscar pacientes.")
         }
 
@@ -214,8 +239,23 @@ class AuthRepository {
     }
 
 
-    suspend fun prescreverMedicacao(pacienteUid: String, nome: String, dosagem: String, frequencia: String, duracao: String, observacoes: String) {
+    suspend fun prescreverMedicacao(
+        pacienteUid: String,
+        nome: String,
+        dosagem: String,
+        frequencia: String,
+        duracao: String,
+        observacoes: String,
+        arquivoUri: Uri?
+    ) {
         val medicacaoRef = firestore.collection(FirestoreCollections.MEDICACOES).document()
+        var arquivoUrl: String? = null
+
+        if (arquivoUri != null) {
+            val storageRef = storage.reference.child("medicacoes_arquivos/${medicacaoRef.id}.pdf")
+            storageRef.putFile(arquivoUri).await()
+            arquivoUrl = storageRef.downloadUrl.await().toString()
+        }
 
         val medicacao = Medicacao(
             id = medicacaoRef.id,
@@ -225,6 +265,7 @@ class AuthRepository {
             frequencia = frequencia,
             duracao = duracao,
             observacoes = observacoes,
+            arquivoUrl = arquivoUrl
         )
         medicacaoRef.set(medicacao).await()
     }

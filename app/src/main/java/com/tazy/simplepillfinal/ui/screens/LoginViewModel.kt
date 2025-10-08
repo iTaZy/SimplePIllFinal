@@ -30,6 +30,8 @@ class LoginViewModel : ViewModel() {
         private set
 
     fun onLoginClick() {
+        errorMessage = null // Limpa a mensagem de erro anterior
+
         if (email.isBlank() || senha.isBlank()) {
             errorMessage = "Por favor, preencha todos os campos."
             return

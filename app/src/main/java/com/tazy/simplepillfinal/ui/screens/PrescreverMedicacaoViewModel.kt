@@ -1,4 +1,4 @@
-// CRIE ESTE NOVO ARQUIVO: ui/screens/PrescreverMedicacaoViewModel.kt
+// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/ui/screens/PrescreverMedicacaoViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue
@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tazy.simplepillfinal.data.AuthRepository
 import kotlinx.coroutines.launch
+import android.net.Uri // Importar a classe Uri
 
 class PrescreverMedicacaoViewModel : ViewModel() {
     private val authRepository = AuthRepository()
@@ -17,6 +18,7 @@ class PrescreverMedicacaoViewModel : ViewModel() {
     var frequencia by mutableStateOf("")
     var duracao by mutableStateOf("")
     var observacoes by mutableStateOf("")
+    var arquivoUri by mutableStateOf<Uri?>(null) // Novo estado para o URI do arquivo
 
     var isLoading by mutableStateOf(false)
         private set
@@ -40,7 +42,8 @@ class PrescreverMedicacaoViewModel : ViewModel() {
                     dosagem = dosagem,
                     frequencia = frequencia,
                     duracao = duracao,
-                    observacoes = observacoes
+                    observacoes = observacoes,
+                    arquivoUri = arquivoUri // Passar o URI do arquivo
                 )
                 prescriptionSuccess = true
             } catch (e: Exception) {
