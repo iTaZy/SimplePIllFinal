@@ -25,14 +25,15 @@ import androidx.navigation.NavHostController
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.navigation.AppRoutes
 import com.tazy.simplepillfinal.ui.screens.LoginViewModel
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun CadastroScreen(navController: NavHostController) {
     val backgroundColor = Brush.verticalGradient(
-        colors = listOf(Color(0xFFD4E7F4), Color(0xFFE5F4F5)) // Tons de azul claro
+        colors = listOf(Color(0xFFE5F4F5), Color(0xFFF0F2F5)) // Tons de azul/cinza
     )
 
-    var abaSelecionada by remember { mutableStateOf(0) } // 0 = Cadastro, 1 = Login
+    var abaSelecionada by remember { mutableStateOf(1) } // 0 = Cadastro, 1 = Login
 
     Box(
         modifier = Modifier
@@ -46,7 +47,6 @@ fun CadastroScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // A imagem não será mostrada como um avatar, mas como a logo central
             Image(
                 painter = painterResource(id = R.drawable.logo_simple_pill),
                 contentDescription = "Logo Simple Pill",
@@ -55,7 +55,6 @@ fun CadastroScreen(navController: NavHostController) {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Abas de Navegação
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -82,16 +81,6 @@ fun CadastroScreen(navController: NavHostController) {
             } else {
                 ConteudoLogin(navController)
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = "ou conheça o aplicativo",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.clickable { /* TODO: Implementar navegação */ }
-            )
         }
     }
 }
@@ -109,16 +98,21 @@ fun AbaSelecionavel(texto: String, selecionado: Boolean, aoClicar: () -> Unit) {
 
 @Composable
 fun ConteudoCadastro(navController: NavHostController) {
-    Button(
-        onClick = { navController.navigate(AppRoutes.CADASTRO_GERAL) },
-        shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .padding(vertical = 6.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text(text = "Criar nova conta", fontSize = 18.sp, color = Color.Black)
+        Text("Crie sua conta e comece a gerenciar sua saúde!", textAlign = TextAlign.Center)
+        Button(
+            onClick = { navController.navigate(AppRoutes.CADASTRO_GERAL) },
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E8B57)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        ) {
+            Text(text = "Criar nova conta", fontSize = 18.sp, color = Color.White)
+        }
     }
 }
 
@@ -130,15 +124,12 @@ private fun ConteudoLogin(navController: NavHostController, viewModel: LoginView
         val user = viewModel.loginSuccessUser
         if (user != null) {
             val route = when (user.tipo) {
-                TipoUsuario.PACIENTE -> "bem_vindo_paciente/${user.nome}/${user.email}/${user.uid}"
-                TipoUsuario.CUIDADOR -> "bem_vindo_cuidador/${user.nome}/${user.email}/${user.uid}"
-                TipoUsuario.PROFISSIONAL_SAUDE -> "bem_vindo_profissional/${user.nome}/${user.email}/${user.uid}"
-                else -> ""
+                TipoUsuario.PACIENTE -> "${AppRoutes.BEM_VINDO_PACIENTE}/${user.nome}/${user.email}/${user.uid}"
+                TipoUsuario.CUIDADOR -> "${AppRoutes.BEM_VINDO_CUIDADOR}/${user.nome}/${user.email}/${user.uid}"
+                TipoUsuario.PROFISSIONAL_SAUDE -> "${AppRoutes.BEM_VINDO_PROFISSIONAL}/${user.nome}/${user.email}/${user.uid}"
             }
-            if(route.isNotEmpty()) {
-                navController.navigate(route) {
-                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
-                }
+            navController.navigate(route) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
             }
         }
     }
@@ -157,14 +148,26 @@ private fun ConteudoLogin(navController: NavHostController, viewModel: LoginView
             value = viewModel.email,
             onValueChange = { viewModel.email = it },
             label = { Text("E‑mail") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF2E8B57),
+                unfocusedBorderColor = Color.Gray,
+                focusedLabelColor = Color(0xFF2E8B57)
+            )
         )
         OutlinedTextField(
             value = viewModel.senha,
             onValueChange = { viewModel.senha = it },
             label = { Text("Senha") },
             visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFF2E8B57),
+                unfocusedBorderColor = Color.Gray,
+                focusedLabelColor = Color(0xFF2E8B57)
+            )
         )
 
         Text("Logar como:", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 8.dp))
@@ -197,20 +200,13 @@ private fun ConteudoLogin(navController: NavHostController, viewModel: LoginView
         ) {
             Text(if (viewModel.isLoading) "Carregando..." else "Entrar", fontSize = 18.sp, color = Color.White)
         }
-    }
-}
-
-
-@Composable
-fun CadastroButton(text: String, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(50),
-        colors = ButtonDefaults.buttonColors(containerColor = Color.White),
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-    ) {
-        Text(text = text, fontSize = 18.sp, color = Color.Black)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "ou conheça o aplicativo",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            textDecoration = TextDecoration.Underline,
+            modifier = Modifier.clickable { /* TODO: Implementar navegação */ }
+        )
     }
 }
