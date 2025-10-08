@@ -52,18 +52,33 @@ class AuthRepository {
         throw Exception("Dados não encontrados para este tipo de perfil. Verifique o perfil selecionado.")
     }
 
-    // NOVO: Função para reautenticar o usuário
+    suspend fun getUsuarioByUid(uid: String, tipo: TipoUsuario): Usuario? {
+        val collectionPath = when (tipo) {
+            TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
+            TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
+            TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
+        }
+        val userDoc = firestore.collection(collectionPath).document(uid).get().await()
+        return if (userDoc.exists()) {
+            Usuario(uid, userDoc.getString("nome") ?: "", userDoc.getString("email") ?: "", tipo)
+        } else {
+            null
+        }
+    }
+
+    fun signOut() {
+        auth.signOut()
+    }
+
     suspend fun reauthenticateUser(password: String) {
         val user = auth.currentUser ?: throw Exception("Usuário não logado.")
         val credential = EmailAuthProvider.getCredential(user.email!!, password)
         user.reauthenticate(credential).await()
     }
 
-    // NOVO: Função para desvincular um médico
     suspend fun desvincularMedico(pacienteUid: String, medicoUid: String) {
         val pacienteDocRef = firestore.collection(FirestoreCollections.PACIENTES).document(pacienteUid)
 
-        // Remove o UID do médico da lista de profissionais
         pacienteDocRef.update("profissionaisIds", FieldValue.arrayRemove(medicoUid)).await()
     }
 
@@ -81,7 +96,6 @@ class AuthRepository {
         val pacienteDoc = querySnapshot.documents.first()
         val pacienteUid = pacienteDoc.id
 
-        // Ao invés de vincular diretamente, cria uma solicitação
         val solicitacao = SolicitacaoVinculo(
             remetenteUid = associadoUid,
             remetenteTipo = associadoTipo.name,
@@ -90,7 +104,6 @@ class AuthRepository {
         firestore.collection("solicitacoesVinculo").add(solicitacao).await()
     }
 
-    // NOVA FUNÇÃO: Obtém solicitações de vínculo pendentes para um usuário
     suspend fun getSolicitacoesPendentes(uid: String): List<SolicitacaoVinculo> {
         val querySnapshot = firestore.collection("solicitacoesVinculo")
             .whereEqualTo("destinatarioUid", uid)
@@ -99,7 +112,6 @@ class AuthRepository {
         return querySnapshot.toObjects(SolicitacaoVinculo::class.java)
     }
 
-    // NOVA FUNÇÃO: Aceita uma solicitação de vínculo
     suspend fun aceitarVinculacao(solicitacao: SolicitacaoVinculo) {
         val pacienteDocRef = firestore.collection(FirestoreCollections.PACIENTES).document(solicitacao.destinatarioUid)
 
@@ -111,11 +123,9 @@ class AuthRepository {
 
         pacienteDocRef.update(campoParaAtualizar, FieldValue.arrayUnion(solicitacao.remetenteUid)).await()
 
-        // Remove a solicitação após aceitar
         firestore.collection("solicitacoesVinculo").document(solicitacao.id).delete().await()
     }
 
-    // NOVA FUNÇÃO: Nega uma solicitação de vínculo
     suspend fun negarVinculacao(solicitacaoId: String) {
         firestore.collection("solicitacoesVinculo").document(solicitacaoId).delete().await()
     }
@@ -123,7 +133,7 @@ class AuthRepository {
     suspend fun getPacientesVinculados(uid: String, tipo: TipoUsuario): List<Paciente> {
         val campoDeBusca = when (tipo) {
             TipoUsuario.CUIDADOR -> "cuidadoresIds"
-            TipoUsuario.PROFISSIONAL_SAUDE -> "profissionaisIds" // CORREÇÃO AQUI
+            TipoUsuario.CUIDADOR -> "profissionaisIds"
             else -> throw IllegalArgumentException("Tipo de perfil inválido para buscar pacientes.")
         }
 
@@ -134,26 +144,6 @@ class AuthRepository {
 
         return querySnapshot.documents.mapNotNull { doc ->
             doc.toObject(Paciente::class.java)
-        }
-    }
-
-    suspend fun getUsuarioByUid(uid: String, tipo: TipoUsuario): Usuario? {
-        val collectionPath = when (tipo) {
-            TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
-            TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
-            TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
-        }
-        val userDoc = firestore.collection(collectionPath).document(uid).get().await()
-
-        return if (userDoc.exists()) {
-            Usuario(
-                uid = userDoc.id,
-                nome = userDoc.getString("nome") ?: "",
-                email = userDoc.getString("email") ?: "",
-                tipo = tipo
-            )
-        } else {
-            null
         }
     }
 
@@ -192,10 +182,7 @@ class AuthRepository {
     }
 
     suspend fun getMedicosVinculados(uid: String, tipo: TipoUsuario): List<Medico> {
-        // A lógica assume que um Paciente (uid) quer ver os seus médicos vinculados.
         if (tipo != TipoUsuario.PACIENTE) {
-            // Se um cuidador ou médico tentar usar esta função, retorna uma lista vazia ou lança um erro.
-            // Ajuste conforme a necessidade da sua aplicação.
             return emptyList()
         }
 
@@ -204,20 +191,17 @@ class AuthRepository {
             return emptyList()
         }
 
-        // Pega a lista de IDs dos profissionais de saúde do documento do paciente
         val profissionaisIds = pacienteDoc.get("profissionaisIds") as? List<String> ?: emptyList()
 
         if (profissionaisIds.isEmpty()) {
             return emptyList()
         }
 
-        // Busca na coleção de PROFISSIONAIS_DA_SAUDE todos os documentos cujos UIDs estão na lista
         val medicosQuery = firestore.collection(FirestoreCollections.PROFISSIONAIS_DA_SAUDE)
             .whereIn("uid", profissionaisIds)
             .get()
             .await()
 
-        // Mapeia os documentos encontrados para objetos da classe Medico
         return medicosQuery.documents.mapNotNull { doc ->
             doc.toObject(Medico::class.java)
         }
