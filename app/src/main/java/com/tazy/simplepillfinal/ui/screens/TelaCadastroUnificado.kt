@@ -45,7 +45,6 @@ fun TelaCadastroUnificado(
     val decodedAcao = URLDecoder.decode(acao, StandardCharsets.UTF_8.toString())
     val backgroundColor = Color(0xFFE2C64D)
 
-    // Efeitos colaterais para feedback do usuário
     LaunchedEffect(viewModel.saveSuccess) {
         if (viewModel.saveSuccess) {
             Toast.makeText(context, "Registro de $decodedAcao salvo com sucesso!", Toast.LENGTH_SHORT).show()
@@ -187,7 +186,6 @@ fun TelaCadastroUnificado(
     }
 }
 
-// As subtelas agora recebem o ViewModel como parâmetro
 @Composable
 private fun SubtelaExames(viewModel: CadastroUnificadoViewModel) {
     Column(modifier = Modifier.fillMaxWidth()) {

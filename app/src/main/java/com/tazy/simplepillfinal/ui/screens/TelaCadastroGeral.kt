@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +25,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.TipoUsuario
-import androidx.compose.material3.AlertDialogDefaults.containerColor
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,17 +45,24 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
         }
     }
 
+    val containerColor = when {
+        TipoUsuario.PACIENTE in viewModel.perfisSelecionados -> Color(0xFF73A5AD)
+        TipoUsuario.CUIDADOR in viewModel.perfisSelecionados -> Color(0xFF1B7814)
+        TipoUsuario.PROFISSIONAL_SAUDE in viewModel.perfisSelecionados -> Color(0xFF4369B9)
+        else -> Color(0xFFE5F4F5)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFE5F4F5))
     ) {
-        // Top section with a different color for visual separation
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .background(Color(0xFF73A5AD))
+                .background(containerColor)
+                .align(Alignment.TopCenter)
         ) {
             Text(
                 "Cadastro",
@@ -66,21 +72,8 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
                 modifier = Modifier
                     .align(Alignment.Center)
             )
-            IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Voltar",
-                    tint = Color.White
-                )
-            }
         }
 
-        // Main content column
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -89,7 +82,7 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(150.dp)) // Spacer to push content below the colored box
+            Spacer(modifier = Modifier.height(150.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -148,7 +141,6 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Novos campos de endereço
             OutlinedTextField(
                 value = viewModel.cep,
                 onValueChange = {
@@ -231,6 +223,25 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
                     value = viewModel.unidadeSus,
                     onValueChange = { viewModel.unidadeSus = it },
                     label = { Text("Unidade de atendimento do SUS") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                )
+            }
+            // NOVO: Campos para Profissional de Saúde
+            if (TipoUsuario.PROFISSIONAL_SAUDE in viewModel.perfisSelecionados) {
+                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                Text("Informações de Profissional", style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                OutlinedTextField(
+                    value = viewModel.crm,
+                    onValueChange = { viewModel.onCrmChange(it) },
+                    label = { Text("CRM* (Apenas números)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                OutlinedTextField(
+                    value = viewModel.ufCrm,
+                    onValueChange = { viewModel.onUfCrmChange(it) },
+                    label = { Text("UF do CRM*") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
                 )
