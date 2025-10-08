@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.R
+import com.tazy.simplepillfinal.data.AuthRepository
+import com.tazy.simplepillfinal.navigation.AppRoutes
 
 @Composable
 fun LobbyLayout(
@@ -81,20 +83,25 @@ fun LobbyLayout(
             content()
             Spacer(modifier = Modifier.weight(1f))
 
-            Image(
-                painter = painterResource(id = R.drawable.logo_simple_pill),
-                contentDescription = "Logo Simple Pill",
-                modifier = Modifier.size(150.dp)
-            )
-
             Text(
-                text = "Voltar",
+                text = "Sair",
                 fontSize = 18.sp,
                 textDecoration = TextDecoration.Underline,
                 color = Color.Black,
                 modifier = Modifier
-                    .clickable { navController.popBackStack() }
+                    .clickable {
+                        AuthRepository().signOut()
+                        navController.navigate(AppRoutes.TELA_INICIAL) {
+                            popUpTo(AppRoutes.TELA_INICIAL) { inclusive = true }
+                        }
+                    }
                     .padding(top = 8.dp)
+            )
+
+            Image(
+                painter = painterResource(id = R.drawable.logo_simple_pill),
+                contentDescription = "Logo Simple Pill",
+                modifier = Modifier.size(150.dp)
             )
         }
     }
