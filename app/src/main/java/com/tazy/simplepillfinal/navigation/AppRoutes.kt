@@ -14,8 +14,8 @@ object AppRoutes {
     const val MINHAS_MEDICACOES = "minhas_medicacoes"
     const val CADASTRO_UNIFICADO = "cadastro_unificado"
     const val PROFISSIONAIS_VINCULADOS = "profissionais_vinculados"
-    const val CONFIRMACOES_VINCULO = "confirmacoes_vinculo" // NOVA ROTA
-    const val DETALHES_MEDICO = "detalhes_medico" // <-- ADICIONE ESTA LINHA
+    const val CONFIRMACOES_VINCULO = "confirmacoes_vinculo"
+    const val DETALHES_MEDICO = "detalhes_medico"
 
     // ROTAS PARA AS TELAS DE VISUALIZAÇÃO DO PACIENTE
     const val VISUALIZAR_EXAMES = "visualizar_exames"

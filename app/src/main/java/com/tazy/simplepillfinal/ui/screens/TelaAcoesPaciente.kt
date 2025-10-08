@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -51,7 +53,6 @@ fun TelaAcoesPaciente(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(16.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -81,55 +82,57 @@ fun TelaAcoesPaciente(
 
         Spacer(modifier = Modifier.height(60.dp))
 
-        ActionButton(text = "Prescrever medicações") {
-            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-            navController.navigate("${AppRoutes.PRESCREVER_MEDICACAO}/$pacienteUid/$encodedNome")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+        // Botões de ação como cartões individuais
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ActionButton(text = "Prescrever medicações") {
+                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                navController.navigate("${AppRoutes.PRESCREVER_MEDICACAO}/$pacienteUid/$encodedNome")
+            }
 
-        ActionButton(text = "Solicitar exames") {
-            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-            val encodedAcao = URLEncoder.encode("Exames", StandardCharsets.UTF_8.toString())
-            navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            ActionButton(text = "Solicitar exames") {
+                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                val encodedAcao = URLEncoder.encode("Exames", StandardCharsets.UTF_8.toString())
+                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            }
 
-        ActionButton(text = "Solicitar vacinação") {
-            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-            val encodedAcao = URLEncoder.encode("Vacinação", StandardCharsets.UTF_8.toString())
-            navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            ActionButton(text = "Solicitar vacinação") {
+                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                val encodedAcao = URLEncoder.encode("Vacinação", StandardCharsets.UTF_8.toString())
+                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            }
 
-        ActionButton(text = "Registrar internação") {
-            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-            val encodedAcao = URLEncoder.encode("Internação", StandardCharsets.UTF_8.toString())
-            navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            ActionButton(text = "Registrar internação") {
+                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                val encodedAcao = URLEncoder.encode("Internação", StandardCharsets.UTF_8.toString())
+                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            }
 
-        ActionButton(text = "Cadastro fisioterapêutico") {
-            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-            val encodedAcao = URLEncoder.encode("Fisioterapia", StandardCharsets.UTF_8.toString())
-            navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            ActionButton(text = "Cadastro fisioterapêutico") {
+                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                val encodedAcao = URLEncoder.encode("Fisioterapia", StandardCharsets.UTF_8.toString())
+                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            }
 
-        ActionButton(text = "Cadastro saúde mental") {
-            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-            val encodedAcao = URLEncoder.encode("Saúde mental", StandardCharsets.UTF_8.toString())
-            navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
+            ActionButton(text = "Cadastro saúde mental") {
+                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                val encodedAcao = URLEncoder.encode("Saúde mental", StandardCharsets.UTF_8.toString())
+                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            }
 
-        ActionButton(text = "Cadastro nutricional") {
-            val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-            val encodedAcao = URLEncoder.encode("Nutrição", StandardCharsets.UTF_8.toString())
-            navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            ActionButton(text = "Cadastro nutricional") {
+                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                val encodedAcao = URLEncoder.encode("Nutrição", StandardCharsets.UTF_8.toString())
+                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.weight(1f))
+        Spacer(modifier = Modifier.height(16.dp)) // Espaço entre os botões e o rodapé
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -149,5 +152,33 @@ fun TelaAcoesPaciente(
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
+    }
+}
+
+@Composable
+private fun ActionButton(text: String, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(50),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .height(56.dp)
+                .padding(horizontal = 16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black
+            )
+        }
     }
 }

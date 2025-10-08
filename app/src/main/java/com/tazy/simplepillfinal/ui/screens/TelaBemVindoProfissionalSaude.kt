@@ -20,16 +20,10 @@ fun TelaBemVindoProfissionalSaude(navController: NavController, nome: String, ui
     LobbyLayout(
         navController = navController,
         nome = nome,
-        backgroundColor = backgroundColor
-    ) {
-        // Botões específicos do Lobby do Profissional da Saúde
-        LobbyButton(text = "Pacientes") {
-            navController.navigate("${AppRoutes.PACIENTES_VINCULADOS}/$uid/${TipoUsuario.PROFISSIONAL_SAUDE}")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Vincular Paciente") {
-            // Navega para a tela de vínculo, passando o UID e o Tipo de Usuário do Profissional
-            navController.navigate("${AppRoutes.VINCULAR_PACIENTE}/$uid/${TipoUsuario.PROFISSIONAL_SAUDE}")
-        }
-    }
+        backgroundColor = backgroundColor,
+        menuItems = listOf(
+            Pair("Pacientes") { navController.navigate("${AppRoutes.PACIENTES_VINCULADOS}/$uid/${TipoUsuario.PROFISSIONAL_SAUDE}") },
+            Pair("Vincular Paciente") { navController.navigate("${AppRoutes.VINCULAR_PACIENTE}/$uid/${TipoUsuario.PROFISSIONAL_SAUDE}") }
+        )
+    )
 }

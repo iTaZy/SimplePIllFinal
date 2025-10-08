@@ -32,43 +32,17 @@ fun TelaBemVindoPaciente(navController: NavController, nome: String, email: Stri
     LobbyLayout(
         navController = navController,
         nome = nome,
-        backgroundColor = backgroundColor
-    ) {
-        // Novo botão adicionado
-        LobbyButton(text = "Confirmações de Vínculo") {
-            navController.navigate("${AppRoutes.CONFIRMACOES_VINCULO}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Profissionais Vinculados") {
-            navController.navigate("${AppRoutes.PROFISSIONAIS_VINCULADOS}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Minhas Medicações") {
-            navController.navigate("${AppRoutes.MINHAS_MEDICACOES}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Exames") {
-            navController.navigate("${AppRoutes.VISUALIZAR_EXAMES}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Vacinação") {
-            navController.navigate("${AppRoutes.VISUALIZAR_VACINACAO}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Internações") {
-            navController.navigate("${AppRoutes.VISUALIZAR_INTERNACOES}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Fisioterapia") {
-            navController.navigate("${AppRoutes.VISUALIZAR_FISIOTERAPIA}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Saúde mental") {
-            navController.navigate("${AppRoutes.VISUALIZAR_SAUDE_MENTAL}/$uid")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Nutrição") {
-            navController.navigate("${AppRoutes.VISUALIZAR_NUTRICAO}/$uid")
-        }
-    }
+        backgroundColor = backgroundColor,
+        menuItems = listOf(
+            Pair("Confirmações de Vínculo") { navController.navigate("${AppRoutes.CONFIRMACOES_VINCULO}/$uid") },
+            Pair("Profissionais Vinculados") { navController.navigate("${AppRoutes.PROFISSIONAIS_VINCULADOS}/$uid") },
+            Pair("Minhas Medicações") { navController.navigate("${AppRoutes.MINHAS_MEDICACOES}/$uid") },
+            Pair("Exames") { navController.navigate("${AppRoutes.VISUALIZAR_EXAMES}/$uid") },
+            Pair("Vacinação") { navController.navigate("${AppRoutes.VISUALIZAR_VACINACAO}/$uid") },
+            Pair("Internações") { navController.navigate("${AppRoutes.VISUALIZAR_INTERNACOES}/$uid") },
+            Pair("Fisioterapia") { navController.navigate("${AppRoutes.VISUALIZAR_FISIOTERAPIA}/$uid") },
+            Pair("Saúde mental") { navController.navigate("${AppRoutes.VISUALIZAR_SAUDE_MENTAL}/$uid") },
+            Pair("Nutrição") { navController.navigate("${AppRoutes.VISUALIZAR_NUTRICAO}/$uid") }
+        )
+    )
 }

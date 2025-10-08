@@ -20,16 +20,10 @@ fun TelaBemVindoCuidador(navController: NavController, nome: String, uid: String
     LobbyLayout(
         navController = navController,
         nome = nome,
-        backgroundColor = backgroundColor
-    ) {
-        // Botões específicos do Lobby do Cuidador
-        LobbyButton(text = "Informações de saúde") {
-            navController.navigate("${AppRoutes.PACIENTES_VINCULADOS}/$uid/${TipoUsuario.CUIDADOR}")
-        }
-        Spacer(Modifier.height(24.dp))
-        LobbyButton(text = "Vincular Paciente") {
-            // Navega para a tela de vínculo, passando o UID e o Tipo de Usuário do Cuidador
-            navController.navigate("${AppRoutes.VINCULAR_PACIENTE}/$uid/${TipoUsuario.CUIDADOR}")
-        }
-    }
+        backgroundColor = backgroundColor,
+        menuItems = listOf(
+            Pair("Pacientes Vinculados") { navController.navigate("${AppRoutes.PACIENTES_VINCULADOS}/$uid/${TipoUsuario.CUIDADOR}") },
+            Pair("Vincular Paciente") { navController.navigate("${AppRoutes.VINCULAR_PACIENTE}/$uid/${TipoUsuario.CUIDADOR}") }
+        )
+    )
 }
