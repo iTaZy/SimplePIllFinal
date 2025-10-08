@@ -52,20 +52,6 @@ class AuthRepository {
         throw Exception("Dados não encontrados para este tipo de perfil. Verifique o perfil selecionado.")
     }
 
-    suspend fun getUsuarioByUid(uid: String, tipo: TipoUsuario): Usuario? {
-        val collectionPath = when (tipo) {
-            TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
-            TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
-            TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
-        }
-        val userDoc = firestore.collection(collectionPath).document(uid).get().await()
-        return if (userDoc.exists()) {
-            Usuario(uid, userDoc.getString("nome") ?: "", userDoc.getString("email") ?: "", tipo)
-        } else {
-            null
-        }
-    }
-
     fun signOut() {
         auth.signOut()
     }
