@@ -112,7 +112,7 @@ fun LobbyLayout(
 
             Spacer(modifier = Modifier.weight(1f)) // Empurra o conteúdo para cima e o rodapé para baixo
 
-            // Rodapé com botão Sair e logo
+            // Rodapé apenas com o logo
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -120,32 +120,6 @@ fun LobbyLayout(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier.clickable {
-                        AuthRepository().signOut()
-                        navController.navigate(AppRoutes.TELA_INICIAL) {
-                            popUpTo(AppRoutes.TELA_INICIAL) { inclusive = true }
-                        }
-                    },
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ExitToApp,
-                        contentDescription = "Sair",
-                        tint = Color.Black.copy(alpha = 0.7f),
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Sair",
-                        fontSize = 16.sp,
-                        textDecoration = TextDecoration.Underline,
-                        color = Color.Black.copy(alpha = 0.7f),
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
                 Image(
                     painter = painterResource(id = R.drawable.logo_simple_pill),
                     contentDescription = "Logo Simple Pill",
@@ -182,11 +156,3 @@ fun CardButton(text: String, onClick: () -> Unit) {
         }
     }
 }
-
-// As funções LobbyButton e ActionButton não serão mais usadas diretamente neste layout,
-// mas podem ser mantidas se forem usadas em outras partes do app.
-// Por simplicidade, vou removê-las para evitar confusão, mas você pode decidir mantê-las.
-// @Composable
-// fun LobbyButton(...) { ... }
-// @Composable
-// fun ActionButton(...) { ... }
