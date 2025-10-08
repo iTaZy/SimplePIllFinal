@@ -30,7 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 @Composable
 fun CadastroScreen(navController: NavHostController) {
     val backgroundColor = Brush.verticalGradient(
-        colors = listOf(Color(0xFFE5F4F5), Color(0xFFF0F2F5)) // Tons de azul/cinza
+        colors = listOf(Color(0xFFE5F4F5), Color(0xFFF0F2F5))
     )
 
     var abaSelecionada by remember { mutableStateOf(1) } // 0 = Cadastro, 1 = Login
@@ -124,9 +124,9 @@ private fun ConteudoLogin(navController: NavHostController, viewModel: LoginView
         val user = viewModel.loginSuccessUser
         if (user != null) {
             val route = when (user.tipo) {
-                TipoUsuario.PACIENTE -> "${AppRoutes.BEM_VINDO_PACIENTE}/${user.nome}/${user.email}/${user.uid}"
-                TipoUsuario.CUIDADOR -> "${AppRoutes.BEM_VINDO_CUIDADOR}/${user.nome}/${user.email}/${user.uid}"
-                TipoUsuario.PROFISSIONAL_SAUDE -> "${AppRoutes.BEM_VINDO_PROFISSIONAL}/${user.nome}/${user.email}/${user.uid}"
+                TipoUsuario.PACIENTE -> "${AppRoutes.BEM_VINDO_PACIENTE}/${user.uid}"
+                TipoUsuario.CUIDADOR -> "${AppRoutes.BEM_VINDO_CUIDADOR}/${user.uid}"
+                TipoUsuario.PROFISSIONAL_SAUDE -> "${AppRoutes.BEM_VINDO_PROFISSIONAL}/${user.uid}"
             }
             navController.navigate(route) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }

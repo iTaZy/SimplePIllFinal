@@ -21,43 +21,33 @@ fun NavGraph(navController: NavHostController) {
         composable(AppRoutes.CADASTRO_GERAL) { TelaCadastroGeral(navController) }
 
         composable(
-            route = "${AppRoutes.BEM_VINDO_PACIENTE}/{nome}/{email}/{uid}",
+            route = "${AppRoutes.BEM_VINDO_PACIENTE}/{uid}", // Rota simplificada
             arguments = listOf(
-                navArgument("nome") { type = NavType.StringType },
-                navArgument("email") { type = NavType.StringType },
                 navArgument("uid") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val nome = backStackEntry.arguments?.getString("nome") ?: "Usuário"
-            val email = backStackEntry.arguments?.getString("email") ?: ""
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            TelaBemVindoPaciente(navController = navController, nome = nome, email = email, uid = uid)
+            TelaBemVindoPaciente(navController = navController, nome = "", email = "", uid = uid)
         }
 
         composable(
-            route = "${AppRoutes.BEM_VINDO_CUIDADOR}/{nome}/{email}/{uid}",
+            route = "${AppRoutes.BEM_VINDO_CUIDADOR}/{uid}", // Rota simplificada
             arguments = listOf(
-                navArgument("nome") { type = NavType.StringType },
-                navArgument("email") { type = NavType.StringType },
                 navArgument("uid") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val nome = backStackEntry.arguments?.getString("nome") ?: "Usuário"
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            TelaBemVindoCuidador(navController = navController, nome = nome, uid = uid)
+            TelaBemVindoCuidador(navController = navController, nome = "", uid = uid)
         }
 
         composable(
-            route = "${AppRoutes.BEM_VINDO_PROFISSIONAL}/{nome}/{email}/{uid}",
+            route = "${AppRoutes.BEM_VINDO_PROFISSIONAL}/{uid}", // Rota simplificada
             arguments = listOf(
-                navArgument("nome") { type = NavType.StringType },
-                navArgument("email") { type = NavType.StringType },
                 navArgument("uid") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val nome = backStackEntry.arguments?.getString("nome") ?: "Usuário"
             val uid = backStackEntry.arguments?.getString("uid") ?: ""
-            TelaBemVindoProfissionalSaude(navController = navController, nome = nome, uid = uid)
+            TelaBemVindoProfissionalSaude(navController = navController, nome = "", uid = uid)
         }
 
         composable(

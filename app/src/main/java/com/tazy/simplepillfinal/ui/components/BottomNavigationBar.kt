@@ -3,10 +3,10 @@ package com.tazy.simplepillfinal.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.People // Importação corrigida
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,11 +25,11 @@ import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.navigation.AppRoutes
 
 sealed class BottomNavItem(val route: String, val label: String, val icon: ImageVector) {
-    object Home : BottomNavItem(AppRoutes.TELA_INICIAL, "Início", Icons.Default.Home)
+    object Home : BottomNavItem(AppRoutes.BEM_VINDO_PACIENTE, "Início", Icons.Default.Home)
     object Pacientes : BottomNavItem(AppRoutes.PACIENTES_VINCULADOS, "Pacientes", Icons.Default.People)
     object Profissionais : BottomNavItem(AppRoutes.PROFISSIONAIS_VINCULADOS, "Profissionais", Icons.Default.Person)
     object Confirmacoes : BottomNavItem(AppRoutes.CONFIRMACOES_VINCULO, "Confirmações", Icons.Default.CheckCircle)
-    object Sair : BottomNavItem(AppRoutes.TELA_INICIAL, "Sair", Icons.Default.ExitToApp)
+    object Sair : BottomNavItem(AppRoutes.TELA_INICIAL, "Sair", Icons.AutoMirrored.Filled.ExitToApp)
 }
 
 @Composable
@@ -61,24 +61,47 @@ fun BottomNavigationBar(navController: NavController, uid: String, tipo: TipoUsu
             NavigationBarItem(
                 selected = selected,
                 onClick = {
-                    if (item.label == "Sair") {
-                        AuthRepository().signOut()
-                        navController.navigate(AppRoutes.TELA_INICIAL) {
-                            popUpTo(AppRoutes.TELA_INICIAL) { inclusive = true }
-                        }
-                    } else {
-                        val route = when (item) {
-                            is BottomNavItem.Pacientes -> "${AppRoutes.PACIENTES_VINCULADOS}/$uid/${tipo}"
-                            is BottomNavItem.Profissionais -> "${AppRoutes.PROFISSIONAIS_VINCULADOS}/$uid"
-                            is BottomNavItem.Confirmacoes -> "${AppRoutes.CONFIRMACOES_VINCULO}/$uid"
-                            else -> item.route
-                        }
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                saveState = true
+                    when (item) {
+                        is BottomNavItem.Home -> {
+                            val route = when(tipo) {
+                                TipoUsuario.PACIENTE -> "${AppRoutes.BEM_VINDO_PACIENTE}/$uid"
+                                TipoUsuario.CUIDADOR -> "${AppRoutes.BEM_VINDO_CUIDADOR}/$uid"
+                                TipoUsuario.PROFISSIONAL_SAUDE -> "${AppRoutes.BEM_VINDO_PROFISSIONAL}/$uid"
                             }
-                            launchSingleTop = true
-                            restoreState = true
+                            navController.navigate(route) {
+                                popUpTo(navController.graph.startDestinationId) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        is BottomNavItem.Pacientes -> {
+                            navController.navigate("${AppRoutes.PACIENTES_VINCULADOS}/$uid/${tipo}") {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        is BottomNavItem.Profissionais -> {
+                            navController.navigate("${AppRoutes.PROFISSIONAIS_VINCULADOS}/$uid") {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        is BottomNavItem.Confirmacoes -> {
+                            navController.navigate("${AppRoutes.CONFIRMACOES_VINCULO}/$uid") {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        is BottomNavItem.Sair -> {
+                            AuthRepository().signOut()
+                            navController.navigate(AppRoutes.TELA_INICIAL) {
+                                popUpTo(AppRoutes.TELA_INICIAL) { inclusive = true }
+                            }
                         }
                     }
                 },
