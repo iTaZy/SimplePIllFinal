@@ -1,4 +1,4 @@
-// F_ARQUIVO: ui/screens/TelaCadastroGeral.kt
+// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/ui/screens/TelaCadastroGeral.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import android.widget.Toast

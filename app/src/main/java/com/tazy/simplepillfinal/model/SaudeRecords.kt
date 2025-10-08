@@ -1,4 +1,4 @@
-// F_ARQUIVO: model/SaudeRecords.kt
+// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/model/SaudeRecords.kt
 package com.tazy.simplepillfinal.model
 
 import com.google.firebase.Timestamp
@@ -9,7 +9,8 @@ data class Exame(
     val examePedido: String = "",
     val unidade: String = "",
     val diagnostico: String = "",
-    val dataSolicitacao: Timestamp = Timestamp.now()
+    val dataSolicitacao: Timestamp = Timestamp.now(),
+    val arquivoUrl: String? = null // Adicionado para suportar PDF
 )
 
 data class Vacinacao(
@@ -19,7 +20,8 @@ data class Vacinacao(
     val vacina2: String = "",
     val vacina3: String = "",
     val vacina4: String = "",
-    val dataSolicitacao: Timestamp = Timestamp.now()
+    val dataSolicitacao: Timestamp = Timestamp.now(),
+    val arquivoUrl: String? = null // Adicionado para suportar PDF
 )
 
 data class Internacao(
@@ -28,7 +30,8 @@ data class Internacao(
     val unidade: String = "",
     val motivo: String = "",
     val data: String = "",
-    val dataRegistro: Timestamp = Timestamp.now()
+    val dataRegistro: Timestamp = Timestamp.now(),
+    val arquivoUrl: String? = null // Adicionado para suportar PDF
 )
 
 data class Fisioterapia(
@@ -38,7 +41,8 @@ data class Fisioterapia(
     val local: String = "",
     val sessoes: String = "",
     val diagnostico: String = "",
-    val dataRegistro: Timestamp = Timestamp.now()
+    val dataRegistro: Timestamp = Timestamp.now(),
+    val arquivoUrl: String? = null // Adicionado para suportar PDF
 )
 
 data class SaudeMental(
@@ -48,7 +52,8 @@ data class SaudeMental(
     val tratamento: String = "",
     val data: String = "",
     val duracao: String = "",
-    val dataRegistro: Timestamp = Timestamp.now()
+    val dataRegistro: Timestamp = Timestamp.now(),
+    val arquivoUrl: String? = null // Adicionado para suportar PDF
 )
 
 data class Nutricao(
@@ -57,5 +62,6 @@ data class Nutricao(
     val data: String = "",
     val local: String = "",
     val diagnostico: String = "",
-    val dataRegistro: Timestamp = Timestamp.now()
+    val dataRegistro: Timestamp = Timestamp.now(),
+    val arquivoUrl: String? = null // Adicionado para suportar PDF
 )

@@ -2,6 +2,8 @@
 package com.tazy.simplepillfinal.ui.screens
 
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -186,8 +188,14 @@ fun TelaCadastroUnificado(
     }
 }
 
+// As subtelas agora incluem o botão de anexo de PDF
 @Composable
 private fun SubtelaExames(viewModel: CadastroUnificadoViewModel) {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.arquivoUri = uri
+    }
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = viewModel.exame,
@@ -218,11 +226,30 @@ private fun SubtelaExames(viewModel: CadastroUnificadoViewModel) {
                 focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
             )
         )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = { filePickerLauncher.launch("application/pdf") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Anexar Arquivo (PDF)")
+        }
+        if (viewModel.arquivoUri != null) {
+            Text(
+                text = "Arquivo selecionado: ${viewModel.arquivoUri!!.lastPathSegment}",
+                modifier = Modifier.padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
 @Composable
 private fun SubtelaVacinacao(viewModel: CadastroUnificadoViewModel) {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.arquivoUri = uri
+    }
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = viewModel.vacina1,
@@ -263,11 +290,30 @@ private fun SubtelaVacinacao(viewModel: CadastroUnificadoViewModel) {
                 focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
             )
         )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = { filePickerLauncher.launch("application/pdf") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Anexar Arquivo (PDF)")
+        }
+        if (viewModel.arquivoUri != null) {
+            Text(
+                text = "Arquivo selecionado: ${viewModel.arquivoUri!!.lastPathSegment}",
+                modifier = Modifier.padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
 @Composable
 private fun SubtelaInternacao(viewModel: CadastroUnificadoViewModel) {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.arquivoUri = uri
+    }
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = viewModel.unidadeInternacao,
@@ -298,11 +344,30 @@ private fun SubtelaInternacao(viewModel: CadastroUnificadoViewModel) {
                 focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
             )
         )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = { filePickerLauncher.launch("application/pdf") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Anexar Arquivo (PDF)")
+        }
+        if (viewModel.arquivoUri != null) {
+            Text(
+                text = "Arquivo selecionado: ${viewModel.arquivoUri!!.lastPathSegment}",
+                modifier = Modifier.padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
 @Composable
 private fun SubtelaFisioterapia(viewModel: CadastroUnificadoViewModel) {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.arquivoUri = uri
+    }
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = viewModel.dataFisioterapia,
@@ -343,11 +408,30 @@ private fun SubtelaFisioterapia(viewModel: CadastroUnificadoViewModel) {
                 focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
             )
         )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = { filePickerLauncher.launch("application/pdf") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Anexar Arquivo (PDF)")
+        }
+        if (viewModel.arquivoUri != null) {
+            Text(
+                text = "Arquivo selecionado: ${viewModel.arquivoUri!!.lastPathSegment}",
+                modifier = Modifier.padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
 @Composable
 private fun SubtelaSaudeMental(viewModel: CadastroUnificadoViewModel) {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.arquivoUri = uri
+    }
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = viewModel.unidadeSaudeMental,
@@ -388,11 +472,30 @@ private fun SubtelaSaudeMental(viewModel: CadastroUnificadoViewModel) {
                 focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
             )
         )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = { filePickerLauncher.launch("application/pdf") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Anexar Arquivo (PDF)")
+        }
+        if (viewModel.arquivoUri != null) {
+            Text(
+                text = "Arquivo selecionado: ${viewModel.arquivoUri!!.lastPathSegment}",
+                modifier = Modifier.padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
 @Composable
 private fun SubtelaNutricao(viewModel: CadastroUnificadoViewModel) {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        viewModel.arquivoUri = uri
+    }
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = viewModel.dataNutricao,
@@ -423,5 +526,19 @@ private fun SubtelaNutricao(viewModel: CadastroUnificadoViewModel) {
                 focusedBorderColor = Color.Black, unfocusedBorderColor = Color.Gray
             )
         )
+        Spacer(Modifier.height(16.dp))
+        Button(
+            onClick = { filePickerLauncher.launch("application/pdf") },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Anexar Arquivo (PDF)")
+        }
+        if (viewModel.arquivoUri != null) {
+            Text(
+                text = "Arquivo selecionado: ${viewModel.arquivoUri!!.lastPathSegment}",
+                modifier = Modifier.padding(top = 8.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }

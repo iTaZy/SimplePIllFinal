@@ -1,4 +1,4 @@
-// F_ARQUIVO: data/AuthRepository.kt
+// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/data/AuthRepository.kt
 package com.tazy.simplepillfinal.data
 
 import com.google.firebase.Firebase
@@ -12,13 +12,23 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.tazy.simplepillfinal.model.*
 import kotlinx.coroutines.tasks.await
-import com.google.firebase.storage.FirebaseStorage // Importar Firebase Storage
-import android.net.Uri // Importar a classe Uri
+import com.google.firebase.storage.FirebaseStorage
+import android.net.Uri
 
 class AuthRepository {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val storage: FirebaseStorage = FirebaseStorage.getInstance() // Instância do Firebase Storage
+    private val storage: FirebaseStorage = FirebaseStorage.getInstance()
+
+    private suspend fun uploadFile(docId: String, folder: String, uri: Uri?): String? {
+        return if (uri != null) {
+            val storageRef = storage.reference.child("${folder}/${docId}.pdf")
+            storageRef.putFile(uri).await()
+            storageRef.downloadUrl.await().toString()
+        } else {
+            null
+        }
+    }
 
     suspend fun criarUsuario(email: String, senha: String, perfis: Map<TipoUsuario, Map<String, Any>>): String {
         try {
@@ -184,8 +194,8 @@ class AuthRepository {
             return emptyList()
         }
 
-        val profissionaisIds = pacienteDoc.get("profissionaisIds") as? List<String> ?: emptyList()
-        val cuidadoresIds = pacienteDoc.get("cuidadoresIds") as? List<String> ?: emptyList()
+        val profissionaisIds = pacienteDoc["profissionaisIds"] as? List<String> ?: emptyList()
+        val cuidadoresIds = pacienteDoc["cuidadoresIds"] as? List<String> ?: emptyList()
 
         val vinculados = mutableListOf<Usuario>()
 
@@ -222,7 +232,7 @@ class AuthRepository {
             return emptyList()
         }
 
-        val profissionaisIds = pacienteDoc.get("profissionaisIds") as? List<String> ?: emptyList()
+        val profissionaisIds = pacienteDoc["profissionaisIds"] as? List<String> ?: emptyList()
 
         if (profissionaisIds.isEmpty()) {
             return emptyList()
@@ -238,7 +248,6 @@ class AuthRepository {
         }
     }
 
-
     suspend fun prescreverMedicacao(
         pacienteUid: String,
         nome: String,
@@ -249,13 +258,7 @@ class AuthRepository {
         arquivoUri: Uri?
     ) {
         val medicacaoRef = firestore.collection(FirestoreCollections.MEDICACOES).document()
-        var arquivoUrl: String? = null
-
-        if (arquivoUri != null) {
-            val storageRef = storage.reference.child("medicacoes_arquivos/${medicacaoRef.id}.pdf")
-            storageRef.putFile(arquivoUri).await()
-            arquivoUrl = storageRef.downloadUrl.await().toString()
-        }
+        val arquivoUrl = uploadFile(medicacaoRef.id, "medicacoes_arquivos", arquivoUri)
 
         val medicacao = Medicacao(
             id = medicacaoRef.id,
@@ -270,6 +273,93 @@ class AuthRepository {
         medicacaoRef.set(medicacao).await()
     }
 
+    suspend fun salvarExame(pacienteUid: String, examePedido: String, unidade: String, diagnostico: String, arquivoUri: Uri?) {
+        val exameRef = firestore.collection(FirestoreCollections.EXAMES).document()
+        val arquivoUrl = uploadFile(exameRef.id, "exames_arquivos", arquivoUri)
+        val exame = Exame(
+            id = exameRef.id,
+            pacienteUid = pacienteUid,
+            examePedido = examePedido,
+            unidade = unidade,
+            diagnostico = diagnostico,
+            arquivoUrl = arquivoUrl
+        )
+        exameRef.set(exame).await()
+    }
+
+    suspend fun salvarVacinacao(pacienteUid: String, vacina1: String, vacina2: String, vacina3: String, vacina4: String, arquivoUri: Uri?) {
+        val vacinacaoRef = firestore.collection(FirestoreCollections.VACINACAO).document()
+        val arquivoUrl = uploadFile(vacinacaoRef.id, "vacinacao_arquivos", arquivoUri)
+        val vacinacao = Vacinacao(
+            id = vacinacaoRef.id,
+            pacienteUid = pacienteUid,
+            vacina1 = vacina1,
+            vacina2 = vacina2,
+            vacina3 = vacina3,
+            vacina4 = vacina4,
+            arquivoUrl = arquivoUrl
+        )
+        vacinacaoRef.set(vacinacao).await()
+    }
+
+    suspend fun salvarInternacao(pacienteUid: String, unidade: String, motivo: String, data: String, arquivoUri: Uri?) {
+        val internacaoRef = firestore.collection(FirestoreCollections.INTERNACOES).document()
+        val arquivoUrl = uploadFile(internacaoRef.id, "internacoes_arquivos", arquivoUri)
+        val internacao = Internacao(
+            id = internacaoRef.id,
+            pacienteUid = pacienteUid,
+            unidade = unidade,
+            motivo = motivo,
+            data = data,
+            arquivoUrl = arquivoUrl
+        )
+        internacaoRef.set(internacao).await()
+    }
+
+    suspend fun salvarFisioterapia(pacienteUid: String, data: String, local: String, sessoes: String, diagnostico: String, arquivoUri: Uri?) {
+        val fisioterapiaRef = firestore.collection(FirestoreCollections.FISIOTERAPIA).document()
+        val arquivoUrl = uploadFile(fisioterapiaRef.id, "fisioterapia_arquivos", arquivoUri)
+        val fisioterapia = Fisioterapia(
+            id = fisioterapiaRef.id,
+            pacienteUid = pacienteUid,
+            data = data,
+            local = local,
+            sessoes = sessoes,
+            diagnostico = diagnostico,
+            arquivoUrl = arquivoUrl
+        )
+        fisioterapiaRef.set(fisioterapia).await()
+    }
+
+    suspend fun salvarSaudeMental(pacienteUid: String, unidade: String, tratamento: String, data: String, duracao: String, arquivoUri: Uri?) {
+        val saudeMentalRef = firestore.collection(FirestoreCollections.SAUDE_MENTAL).document()
+        val arquivoUrl = uploadFile(saudeMentalRef.id, "saude_mental_arquivos", arquivoUri)
+        val saudeMental = SaudeMental(
+            id = saudeMentalRef.id,
+            pacienteUid = pacienteUid,
+            unidade = unidade,
+            tratamento = tratamento,
+            data = data,
+            duracao = duracao,
+            arquivoUrl = arquivoUrl
+        )
+        saudeMentalRef.set(saudeMental).await()
+    }
+
+    suspend fun salvarNutricao(pacienteUid: String, data: String, local: String, diagnostico: String, arquivoUri: Uri?) {
+        val nutricaoRef = firestore.collection(FirestoreCollections.NUTRICAO).document()
+        val arquivoUrl = uploadFile(nutricaoRef.id, "nutricao_arquivos", arquivoUri)
+        val nutricao = Nutricao(
+            id = nutricaoRef.id,
+            pacienteUid = pacienteUid,
+            data = data,
+            local = local,
+            diagnostico = diagnostico,
+            arquivoUrl = arquivoUrl
+        )
+        nutricaoRef.set(nutricao).await()
+    }
+
     suspend fun getMedicacoes(pacienteUid: String): List<Medicacao> {
         val querySnapshot = firestore.collection(FirestoreCollections.MEDICACOES)
             .whereEqualTo("pacienteUid", pacienteUid)
@@ -278,81 +368,6 @@ class AuthRepository {
             .await()
 
         return querySnapshot.toObjects(Medicacao::class.java)
-    }
-
-    suspend fun salvarExame(pacienteUid: String, examePedido: String, unidade: String, diagnostico: String) {
-        val exameRef = firestore.collection(FirestoreCollections.EXAMES).document()
-        val exame = Exame(
-            id = exameRef.id,
-            pacienteUid = pacienteUid,
-            examePedido = examePedido,
-            unidade = unidade,
-            diagnostico = diagnostico
-        )
-        exameRef.set(exame).await()
-    }
-
-    suspend fun salvarVacinacao(pacienteUid: String, vacina1: String, vacina2: String, vacina3: String, vacina4: String) {
-        val vacinacaoRef = firestore.collection(FirestoreCollections.VACINACAO).document()
-        val vacinacao = Vacinacao(
-            id = vacinacaoRef.id,
-            pacienteUid = pacienteUid,
-            vacina1 = vacina1,
-            vacina2 = vacina2,
-            vacina3 = vacina3,
-            vacina4 = vacina4
-        )
-        vacinacaoRef.set(vacinacao).await()
-    }
-
-    suspend fun salvarInternacao(pacienteUid: String, unidade: String, motivo: String, data: String) {
-        val internacaoRef = firestore.collection(FirestoreCollections.INTERNACOES).document()
-        val internacao = Internacao(
-            id = internacaoRef.id,
-            pacienteUid = pacienteUid,
-            unidade = unidade,
-            motivo = motivo,
-            data = data
-        )
-        internacaoRef.set(internacao).await()
-    }
-
-    suspend fun salvarFisioterapia(pacienteUid: String, data: String, local: String, sessoes: String, diagnostico: String) {
-        val fisioterapiaRef = firestore.collection(FirestoreCollections.FISIOTERAPIA).document()
-        val fisioterapia = Fisioterapia(
-            id = fisioterapiaRef.id,
-            pacienteUid = pacienteUid,
-            data = data,
-            local = local,
-            sessoes = sessoes,
-            diagnostico = diagnostico
-        )
-        fisioterapiaRef.set(fisioterapia).await()
-    }
-
-    suspend fun salvarSaudeMental(pacienteUid: String, unidade: String, tratamento: String, data: String, duracao: String) {
-        val saudeMentalRef = firestore.collection(FirestoreCollections.SAUDE_MENTAL).document()
-        val saudeMental = SaudeMental(
-            id = saudeMentalRef.id,
-            pacienteUid = pacienteUid,
-            unidade = unidade,
-            tratamento = tratamento,
-            data = data,
-            duracao = duracao
-        )
-        saudeMentalRef.set(saudeMental).await()
-    }
-
-    suspend fun salvarNutricao(pacienteUid: String, data: String, local: String, diagnostico: String) {
-        val nutricaoRef = firestore.collection(FirestoreCollections.NUTRICAO).document()
-        val nutricao = Nutricao(
-            id = nutricaoRef.id,
-            pacienteUid = pacienteUid,
-            data = data,
-            local = local,
-            diagnostico = diagnostico
-        )
-        nutricaoRef.set(nutricao).await()
     }
 
     suspend fun getExames(pacienteUid: String): List<Exame> {
