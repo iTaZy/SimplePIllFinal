@@ -3,7 +3,7 @@ package com.tazy.simplepillfinal.navigation
 
 object AppRoutes {
     const val TELA_INICIAL = "tela_inicial"
-    const val SPLASH_SCREEN = "splash_screen" // NOVA ROTA
+    const val SPLASH_SCREEN = "splash_screen"
     const val CADASTRO_GERAL = "cadastro_geral"
     const val BEM_VINDO_PACIENTE = "bem_vindo_paciente"
     const val BEM_VINDO_CUIDADOR = "bem_vindo_cuidador"
@@ -25,6 +25,8 @@ object AppRoutes {
     const val VISUALIZAR_FISIOTERAPIA = "visualizar_fisioterapia"
     const val VISUALIZAR_SAUDE_MENTAL = "visualizar_saude_mental"
     const val VISUALIZAR_NUTRICAO = "visualizar_nutricao"
-    // NOVA ROTA
     const val VISUALIZAR_DADOS_PACIENTE = "visualizar_dados_paciente"
+
+    // NOVA ROTA PARA TELA DE DETALHES DE REGISTROS
+    const val DETALHES_REGISTRO = "detalhes_registro"
 }

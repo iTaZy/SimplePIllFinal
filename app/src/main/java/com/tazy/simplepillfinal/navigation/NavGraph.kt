@@ -11,6 +11,7 @@ import com.tazy.simplepillfinal.CadastroScreen
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.ui.screens.*
 import java.net.URLDecoder
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Composable
@@ -223,6 +224,19 @@ fun NavGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
             VisualizacaoGeralScreen(navController, pacienteUid, "Nutrição")
+        }
+
+        // NOVA ROTA PARA DETALHES DO REGISTRO
+        composable(
+            route = "${AppRoutes.DETALHES_REGISTRO}/{tipoAcao}/{registroId}",
+            arguments = listOf(
+                navArgument("tipoAcao") { type = NavType.StringType },
+                navArgument("registroId") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val tipoAcao = backStackEntry.arguments?.getString("tipoAcao") ?: ""
+            val registroId = backStackEntry.arguments?.getString("registroId") ?: ""
+            TelaDetalhesRegistro(navController = navController, tipoAcao = tipoAcao, registroId = registroId)
         }
     }
 }

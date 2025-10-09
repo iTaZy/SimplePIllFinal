@@ -3,6 +3,7 @@ package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,8 +23,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.model.Medicacao
-import java.text.SimpleDateFormat
-import java.util.*
+import com.tazy.simplepillfinal.navigation.AppRoutes
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,7 +103,10 @@ fun TelaMinhasMedicacoes(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             items(viewModel.medicacoes) { medicacao ->
-                                MedicacaoCard(medicacao)
+                                MedicacaoCard(medicacao) {
+                                    val tipoAcao = URLEncoder.encode("Medicações", StandardCharsets.UTF_8.toString())
+                                    navController.navigate("${AppRoutes.DETALHES_REGISTRO}/$tipoAcao/${medicacao.id}")
+                                }
                             }
                         }
                     }
@@ -112,16 +117,19 @@ fun TelaMinhasMedicacoes(
 }
 
 @Composable
-fun MedicacaoCard(medicacao: Medicacao) {
+fun MedicacaoCard(medicacao: Medicacao, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            val sdf = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault())
-            val dataFormatada = medicacao.dataPrescricao?.toDate()?.let { sdf.format(it) } ?: "Data indisponível"
+            val dataFormatada = medicacao.dataPrescricao?.toDate()?.let {
+                java.text.SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", java.util.Locale.getDefault()).format(it)
+            } ?: "Data indisponível"
 
             Text(
                 text = medicacao.nome,

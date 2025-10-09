@@ -3,6 +3,7 @@ package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,9 +22,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.firebase.Timestamp
-import java.text.SimpleDateFormat
-import java.util.*
 import com.tazy.simplepillfinal.model.*
+import com.tazy.simplepillfinal.navigation.AppRoutes
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,13 +119,26 @@ fun VisualizacaoGeralScreen(
                                 verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 items(dataList) { item ->
+                                    val encodedAcao = URLEncoder.encode(acao, StandardCharsets.UTF_8.toString())
                                     when (item) {
-                                        is Exame -> ExameCard(exame = item)
-                                        is Vacinacao -> VacinacaoCard(vacinacao = item)
-                                        is Internacao -> InternacaoCard(internacao = item)
-                                        is Fisioterapia -> FisioterapiaCard(fisioterapia = item)
-                                        is SaudeMental -> SaudeMentalCard(saudeMental = item)
-                                        is Nutricao -> NutricaoCard(nutricao = item)
+                                        is Exame -> ExameCard(exame = item) {
+                                            navController.navigate("${AppRoutes.DETALHES_REGISTRO}/$encodedAcao/${item.id}")
+                                        }
+                                        is Vacinacao -> VacinacaoCard(vacinacao = item) {
+                                            navController.navigate("${AppRoutes.DETALHES_REGISTRO}/$encodedAcao/${item.id}")
+                                        }
+                                        is Internacao -> InternacaoCard(internacao = item) {
+                                            navController.navigate("${AppRoutes.DETALHES_REGISTRO}/$encodedAcao/${item.id}")
+                                        }
+                                        is Fisioterapia -> FisioterapiaCard(fisioterapia = item) {
+                                            navController.navigate("${AppRoutes.DETALHES_REGISTRO}/$encodedAcao/${item.id}")
+                                        }
+                                        is SaudeMental -> SaudeMentalCard(saudeMental = item) {
+                                            navController.navigate("${AppRoutes.DETALHES_REGISTRO}/$encodedAcao/${item.id}")
+                                        }
+                                        is Nutricao -> NutricaoCard(nutricao = item) {
+                                            navController.navigate("${AppRoutes.DETALHES_REGISTRO}/$encodedAcao/${item.id}")
+                                        }
                                     }
                                 }
                             }
@@ -137,9 +152,11 @@ fun VisualizacaoGeralScreen(
 
 // Cards para cada tipo de registro
 @Composable
-fun ExameCard(exame: Exame) {
+fun ExameCard(exame: Exame, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -164,9 +181,11 @@ fun ExameCard(exame: Exame) {
 }
 
 @Composable
-fun VacinacaoCard(vacinacao: Vacinacao) {
+fun VacinacaoCard(vacinacao: Vacinacao, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -193,9 +212,11 @@ fun VacinacaoCard(vacinacao: Vacinacao) {
 }
 
 @Composable
-fun InternacaoCard(internacao: Internacao) {
+fun InternacaoCard(internacao: Internacao, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -221,9 +242,11 @@ fun InternacaoCard(internacao: Internacao) {
 }
 
 @Composable
-fun FisioterapiaCard(fisioterapia: Fisioterapia) {
+fun FisioterapiaCard(fisioterapia: Fisioterapia, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -250,9 +273,11 @@ fun FisioterapiaCard(fisioterapia: Fisioterapia) {
 }
 
 @Composable
-fun SaudeMentalCard(saudeMental: SaudeMental) {
+fun SaudeMentalCard(saudeMental: SaudeMental, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -279,9 +304,11 @@ fun SaudeMentalCard(saudeMental: SaudeMental) {
 }
 
 @Composable
-fun NutricaoCard(nutricao: Nutricao) {
+fun NutricaoCard(nutricao: Nutricao, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
@@ -323,9 +350,4 @@ private fun InfoRow(label: String, value: String) {
         }
         Spacer(modifier = Modifier.height(4.dp))
     }
-}
-
-fun formatTimestamp(timestamp: Timestamp): String {
-    val sdf = SimpleDateFormat("dd/MM/yyyy 'às' HH:mm", Locale.getDefault())
-    return sdf.format(timestamp.toDate())
 }

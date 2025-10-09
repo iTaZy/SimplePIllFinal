@@ -259,6 +259,9 @@ class AuthRepository {
     ) {
         val medicacaoRef = firestore.collection(FirestoreCollections.MEDICACOES).document()
         val arquivoUrl = uploadFile(medicacaoRef.id, "medicacoes_arquivos", arquivoUri)
+        val profissionalUid = auth.currentUser?.uid ?: "" // Adiciona o UID do profissional
+        val profissionalNome = getUsuarioByUid(profissionalUid, TipoUsuario.PROFISSIONAL_SAUDE)?.nome ?: "Desconhecido"
+
 
         val medicacao = Medicacao(
             id = medicacaoRef.id,
@@ -268,7 +271,9 @@ class AuthRepository {
             frequencia = frequencia,
             duracao = duracao,
             observacoes = observacoes,
-            arquivoUrl = arquivoUrl
+            arquivoUrl = arquivoUrl,
+            profissionalUid = profissionalUid, // Salva o UID do profissional
+            profissionalNome = profissionalNome
         )
         medicacaoRef.set(medicacao).await()
     }
@@ -422,5 +427,62 @@ class AuthRepository {
             .get()
             .await()
         return querySnapshot.toObjects(Nutricao::class.java)
+    }
+
+    // NOVAS FUNÇÕES: Buscar registro por ID
+    suspend fun getMedicacaoById(registroId: String): Medicacao? {
+        val doc = firestore.collection(FirestoreCollections.MEDICACOES)
+            .document(registroId)
+            .get()
+            .await()
+        return doc.toObject(Medicacao::class.java)
+    }
+
+    suspend fun getExameById(registroId: String): Exame? {
+        val doc = firestore.collection(FirestoreCollections.EXAMES)
+            .document(registroId)
+            .get()
+            .await()
+        return doc.toObject(Exame::class.java)
+    }
+
+    suspend fun getVacinacaoById(registroId: String): Vacinacao? {
+        val doc = firestore.collection(FirestoreCollections.VACINACAO)
+            .document(registroId)
+            .get()
+            .await()
+        return doc.toObject(Vacinacao::class.java)
+    }
+
+    suspend fun getInternacaoById(registroId: String): Internacao? {
+        val doc = firestore.collection(FirestoreCollections.INTERNACOES)
+            .document(registroId)
+            .get()
+            .await()
+        return doc.toObject(Internacao::class.java)
+    }
+
+    suspend fun getFisioterapiaById(registroId: String): Fisioterapia? {
+        val doc = firestore.collection(FirestoreCollections.FISIOTERAPIA)
+            .document(registroId)
+            .get()
+            .await()
+        return doc.toObject(Fisioterapia::class.java)
+    }
+
+    suspend fun getSaudeMentalById(registroId: String): SaudeMental? {
+        val doc = firestore.collection(FirestoreCollections.SAUDE_MENTAL)
+            .document(registroId)
+            .get()
+            .await()
+        return doc.toObject(SaudeMental::class.java)
+    }
+
+    suspend fun getNutricaoById(registroId: String): Nutricao? {
+        val doc = firestore.collection(FirestoreCollections.NUTRICAO)
+            .document(registroId)
+            .get()
+            .await()
+        return doc.toObject(Nutricao::class.java)
     }
 }
