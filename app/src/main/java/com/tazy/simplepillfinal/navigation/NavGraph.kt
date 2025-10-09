@@ -22,7 +22,7 @@ fun NavGraph(navController: NavHostController) {
         composable(AppRoutes.CADASTRO_GERAL) { TelaCadastroGeral(navController) }
 
         composable(
-            route = "${AppRoutes.BEM_VINDO_PACIENTE}/{uid}", // Rota simplificada
+            route = "${AppRoutes.BEM_VINDO_PACIENTE}/{uid}",
             arguments = listOf(
                 navArgument("uid") { type = NavType.StringType }
             )
@@ -32,7 +32,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(
-            route = "${AppRoutes.BEM_VINDO_CUIDADOR}/{uid}", // Rota simplificada
+            route = "${AppRoutes.BEM_VINDO_CUIDADOR}/{uid}",
             arguments = listOf(
                 navArgument("uid") { type = NavType.StringType }
             )
@@ -42,7 +42,7 @@ fun NavGraph(navController: NavHostController) {
         }
 
         composable(
-            route = "${AppRoutes.BEM_VINDO_PROFISSIONAL}/{uid}", // Rota simplificada
+            route = "${AppRoutes.BEM_VINDO_PROFISSIONAL}/{uid}",
             arguments = listOf(
                 navArgument("uid") { type = NavType.StringType }
             )
@@ -237,6 +237,19 @@ fun NavGraph(navController: NavHostController) {
             val tipoAcao = backStackEntry.arguments?.getString("tipoAcao") ?: ""
             val registroId = backStackEntry.arguments?.getString("registroId") ?: ""
             TelaDetalhesRegistro(navController = navController, tipoAcao = tipoAcao, registroId = registroId)
+        }
+
+        // NOVO: Rota para a tela de perfil
+        composable(
+            route = "${AppRoutes.TELA_PERFIL}/{uid}/{tipo}",
+            arguments = listOf(
+                navArgument("uid") { type = NavType.StringType },
+                navArgument("tipo") { type = NavType.EnumType(TipoUsuario::class.java) }
+            )
+        ) { backStackEntry ->
+            val uid = backStackEntry.arguments?.getString("uid") ?: ""
+            val tipo = backStackEntry.arguments?.getSerializable("tipo") as TipoUsuario
+            TelaPerfil(navController = navController, uid = uid, tipo = tipo)
         }
     }
 }

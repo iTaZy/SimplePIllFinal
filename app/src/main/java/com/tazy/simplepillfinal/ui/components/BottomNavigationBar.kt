@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.AccountCircle // NEW: Add this import
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -30,6 +31,7 @@ sealed class BottomNavItem(val route: String, val label: String, val icon: Image
     object Profissionais : BottomNavItem(AppRoutes.PROFISSIONAIS_VINCULADOS, "Profissionais", Icons.Default.Person)
     object Confirmacoes : BottomNavItem(AppRoutes.CONFIRMACOES_VINCULO, "Confirmações", Icons.Default.CheckCircle)
     object Sair : BottomNavItem(AppRoutes.TELA_INICIAL, "Sair", Icons.AutoMirrored.Filled.ExitToApp)
+    object Perfil : BottomNavItem(AppRoutes.TELA_PERFIL, "Perfil", Icons.Default.AccountCircle) // NEW
 }
 
 @Composable
@@ -42,11 +44,13 @@ fun BottomNavigationBar(navController: NavController, uid: String, tipo: TipoUsu
             BottomNavItem.Home,
             BottomNavItem.Profissionais,
             BottomNavItem.Confirmacoes,
+            BottomNavItem.Perfil, // NEW
             BottomNavItem.Sair
         )
         TipoUsuario.CUIDADOR, TipoUsuario.PROFISSIONAL_SAUDE -> listOf(
             BottomNavItem.Home,
             BottomNavItem.Pacientes,
+            BottomNavItem.Perfil, // NEW
             BottomNavItem.Sair
         )
     }
@@ -92,6 +96,13 @@ fun BottomNavigationBar(navController: NavController, uid: String, tipo: TipoUsu
                         }
                         is BottomNavItem.Confirmacoes -> {
                             navController.navigate("${AppRoutes.CONFIRMACOES_VINCULO}/$uid") {
+                                popUpTo(navController.graph.startDestinationId) { saveState = true }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                        is BottomNavItem.Perfil -> { // NEW
+                            navController.navigate("${AppRoutes.TELA_PERFIL}/$uid/$tipo") {
                                 popUpTo(navController.graph.startDestinationId) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true

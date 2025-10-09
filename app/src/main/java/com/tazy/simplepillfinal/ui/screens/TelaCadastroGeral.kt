@@ -1,4 +1,4 @@
-// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/ui/screens/TelaCadastroGeral.kt
+// ARQUIVO CORRIGIDO: ui/screens/TelaCadastroGeral.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import android.widget.Toast
@@ -139,6 +139,15 @@ fun TelaCadastroGeral(navController: NavController, viewModel: CadastroGeralView
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 modifier = Modifier.fillMaxWidth()
+            )
+
+            // NOVO: Campo de CPF
+            OutlinedTextField(
+                value = viewModel.cpf,
+                onValueChange = { viewModel.onCpfChange(it) },
+                label = { Text("CPF* (Apenas números)") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
             )
 
             OutlinedTextField(

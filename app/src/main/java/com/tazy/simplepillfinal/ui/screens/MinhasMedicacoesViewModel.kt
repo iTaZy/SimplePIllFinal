@@ -1,4 +1,4 @@
-// CRIE ESTE NOVO ARQUIVO: ui/screens/MinhasMedicacoesViewModel.kt
+// ARQUIVO CORRIGIDO: ui/screens/MinhasMedicacoesViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue

@@ -17,8 +17,6 @@ object AppRoutes {
     const val PROFISSIONAIS_VINCULADOS = "profissionais_vinculados"
     const val CONFIRMACOES_VINCULO = "confirmacoes_vinculo"
     const val DETALHES_MEDICO = "detalhes_medico"
-
-    // ROTAS PARA AS TELAS DE VISUALIZAÇÃO DO PACIENTE
     const val VISUALIZAR_EXAMES = "visualizar_exames"
     const val VISUALIZAR_VACINACAO = "visualizar_vacinacao"
     const val VISUALIZAR_INTERNACOES = "visualizar_internacoes"
@@ -26,7 +24,6 @@ object AppRoutes {
     const val VISUALIZAR_SAUDE_MENTAL = "visualizar_saude_mental"
     const val VISUALIZAR_NUTRICAO = "visualizar_nutricao"
     const val VISUALIZAR_DADOS_PACIENTE = "visualizar_dados_paciente"
-
-    // NOVA ROTA PARA TELA DE DETALHES DE REGISTROS
     const val DETALHES_REGISTRO = "detalhes_registro"
+    const val TELA_PERFIL = "tela_perfil" // NOVO
 }

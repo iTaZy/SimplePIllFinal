@@ -1,4 +1,4 @@
-// NOVO ARQUIVO: ui/screens/DetalhesProfissionalViewModel.kt
+// ARQUIVO CORRIGIDO: ui/screens/DetalhesProfissionalViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue
@@ -30,11 +30,9 @@ class DetalhesProfissionalViewModel : ViewModel() {
         errorMessage = null
         viewModelScope.launch {
             try {
-                // Carregar detalhes do profissional
                 val profissionalInfo = authRepository.getUsuarioByUid(profissionalUid, tipo)
                 profissional = profissionalInfo
 
-                // Carregar histórico de medicações do paciente, filtrando pelo profissional
                 val allMedicacoes = authRepository.getMedicacoes(pacienteUid)
                 historicoMedicacoes = allMedicacoes.filter { it.profissionalUid == profissionalUid }
             } catch (e: Exception) {

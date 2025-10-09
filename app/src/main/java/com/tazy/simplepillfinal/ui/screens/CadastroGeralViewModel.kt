@@ -1,4 +1,4 @@
-// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/ui/screens/CadastroGeralViewModel.kt
+// ARQUIVO CORRIGIDO: ui/screens/CadastroGeralViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue
@@ -34,6 +34,7 @@ class CadastroGeralViewModel : ViewModel() {
     var cep by mutableStateOf("")
     var numero by mutableStateOf("")
     var complemento by mutableStateOf("")
+    var cpf by mutableStateOf("") // NOVO: Campo para CPF
 
     var nacionalidade by mutableStateOf("")
     var numSus by mutableStateOf("")
@@ -92,6 +93,13 @@ class CadastroGeralViewModel : ViewModel() {
         }
     }
 
+    fun onCpfChange(input: String) {
+        val filteredInput = input.filter { it.isDigit() }
+        if (filteredInput.length <= 11) {
+            cpf = filteredInput
+        }
+    }
+
     fun buscarEnderecoPorCep(cep: String) {
         if (cep.length == 8) {
             viewModelScope.launch {
@@ -125,6 +133,10 @@ class CadastroGeralViewModel : ViewModel() {
             errorMessage = "Nome, e-mail, senha e ao menos um perfil são obrigatórios."
             return
         }
+        if (cpf.isBlank() || cpf.length != 11) {
+            errorMessage = "O CPF é obrigatório e deve conter 11 dígitos."
+            return
+        }
 
         if (!isValidEmail(email)) {
             errorMessage = "Por favor, insira um e-mail válido."
@@ -155,7 +167,8 @@ class CadastroGeralViewModel : ViewModel() {
                     "telefone" to telefone,
                     "idade" to idade,
                     "endereco" to "$endereco, $numero, $complemento",
-                    "profissao" to profissao
+                    "profissao" to profissao,
+                    "cpf" to cpf // NOVO: Adiciona o CPF
                 )
 
                 if (TipoUsuario.PACIENTE in perfisSelecionados) {

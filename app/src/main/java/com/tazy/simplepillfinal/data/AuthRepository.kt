@@ -1,4 +1,4 @@
-// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-8593dae0c5e86d037f9980688663ae0c4fa23193/app/src/main/java/com/tazy/simplepillfinal/data/AuthRepository.kt
+// ARQUIVO CORRIGIDO: itazy/simplepillfinal/SimplePIllFinal-80b6cb2c2513df77045c1c6e21727a6ecc530063/app/src/main/java/com/tazy/simplepillfinal/data/AuthRepository.kt
 package com.tazy.simplepillfinal.data
 
 import com.google.firebase.Firebase
@@ -259,7 +259,7 @@ class AuthRepository {
     ) {
         val medicacaoRef = firestore.collection(FirestoreCollections.MEDICACOES).document()
         val arquivoUrl = uploadFile(medicacaoRef.id, "medicacoes_arquivos", arquivoUri)
-        val profissionalUid = auth.currentUser?.uid ?: "" // Adiciona o UID do profissional
+        val profissionalUid = auth.currentUser?.uid ?: ""
         val profissionalNome = getUsuarioByUid(profissionalUid, TipoUsuario.PROFISSIONAL_SAUDE)?.nome ?: "Desconhecido"
 
 
@@ -272,7 +272,7 @@ class AuthRepository {
             duracao = duracao,
             observacoes = observacoes,
             arquivoUrl = arquivoUrl,
-            profissionalUid = profissionalUid, // Salva o UID do profissional
+            profissionalUid = profissionalUid,
             profissionalNome = profissionalNome
         )
         medicacaoRef.set(medicacao).await()
@@ -429,7 +429,6 @@ class AuthRepository {
         return querySnapshot.toObjects(Nutricao::class.java)
     }
 
-    // NOVAS FUNÇÕES: Buscar registro por ID
     suspend fun getMedicacaoById(registroId: String): Medicacao? {
         val doc = firestore.collection(FirestoreCollections.MEDICACOES)
             .document(registroId)
@@ -484,5 +483,62 @@ class AuthRepository {
             .get()
             .await()
         return doc.toObject(Nutricao::class.java)
+    }
+
+    suspend fun getPacienteByUid(uid: String): Paciente? {
+        return firestore.collection(FirestoreCollections.PACIENTES).document(uid).get().await().toObject(Paciente::class.java)
+    }
+
+    suspend fun getCuidadorByUid(uid: String): Cuidador? {
+        return firestore.collection(FirestoreCollections.CUIDADORES).document(uid).get().await().toObject(Cuidador::class.java)
+    }
+
+    suspend fun getProfissionalSaudeByUid(uid: String): ProfissionalSaude? {
+        return firestore.collection(FirestoreCollections.PROFISSIONAIS_DA_SAUDE).document(uid).get().await().toObject(ProfissionalSaude::class.java)
+    }
+
+    suspend fun getEmailByUid(uid: String, tipo: TipoUsuario): String? {
+        val collectionPath = when (tipo) {
+            TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
+            TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
+            TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
+        }
+        val userDoc = firestore.collection(collectionPath).document(uid).get().await()
+        return userDoc.getString("email")
+    }
+
+    suspend fun updateUser(uid: String, tipo: TipoUsuario, email: String, telefone: String, endereco: String, nationalId: String, susCard: String, ufCrm: String) {
+        val collectionPath = when (tipo) {
+            TipoUsuario.PACIENTE -> FirestoreCollections.PACIENTES
+            TipoUsuario.CUIDADOR -> FirestoreCollections.CUIDADORES
+            TipoUsuario.PROFISSIONAL_SAUDE -> FirestoreCollections.PROFISSIONAIS_DA_SAUDE
+        }
+
+        val updates = hashMapOf<String, Any>(
+            "email" to email,
+            "telefone" to telefone,
+            "endereco" to endereco
+        )
+
+        when (tipo) {
+            TipoUsuario.PACIENTE -> {
+                updates["cpf"] = nationalId
+                updates["numSus"] = susCard
+            }
+            TipoUsuario.CUIDADOR -> {
+                updates["cpf"] = nationalId
+            }
+            TipoUsuario.PROFISSIONAL_SAUDE -> {
+                updates["crm"] = nationalId
+                updates["ufCrm"] = ufCrm
+            }
+        }
+
+        val currentUser = auth.currentUser
+        if (currentUser?.email != email) {
+            currentUser?.updateEmail(email)?.await()
+        }
+
+        firestore.collection(collectionPath).document(uid).update(updates).await()
     }
 }

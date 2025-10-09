@@ -1,4 +1,4 @@
-// CRIE ESTE NOVO ARQUIVO: ui/screens/VisualizacaoGeralViewModel.kt
+// ARQUIVO CORRIGIDO: ui/screens/VisualizacaoGeralViewModel.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.runtime.getValue
@@ -18,7 +18,6 @@ class VisualizacaoGeralViewModel : ViewModel() {
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    // Estados para cada tipo de lista de dados
     var exames by mutableStateOf<List<Exame>>(emptyList())
         private set
     var vacinacao by mutableStateOf<List<Vacinacao>>(emptyList())
