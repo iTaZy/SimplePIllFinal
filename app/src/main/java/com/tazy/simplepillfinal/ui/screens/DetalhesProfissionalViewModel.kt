@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.tazy.simplepillfinal.data.AuthRepository
 import com.tazy.simplepillfinal.model.TipoUsuario
 import com.tazy.simplepillfinal.model.Usuario
+import com.tazy.simplepillfinal.model.Medicacao
 import kotlinx.coroutines.launch
 
 class DetalhesProfissionalViewModel : ViewModel() {
@@ -16,6 +17,7 @@ class DetalhesProfissionalViewModel : ViewModel() {
 
     var profissional by mutableStateOf<Usuario?>(null)
         private set
+    var historicoMedicacoes by mutableStateOf<List<Medicacao>>(emptyList())
     var isLoading by mutableStateOf(false)
         private set
     var errorMessage by mutableStateOf<String?>(null)
@@ -23,14 +25,20 @@ class DetalhesProfissionalViewModel : ViewModel() {
     var showPasswordDialog by mutableStateOf(false)
         private set
 
-    fun carregarProfissional(profissionalUid: String, tipo: TipoUsuario) {
+    fun carregarDetalhesEHistorico(pacienteUid: String, profissionalUid: String, tipo: TipoUsuario) {
         isLoading = true
         errorMessage = null
         viewModelScope.launch {
             try {
-                profissional = authRepository.getUsuarioByUid(profissionalUid, tipo)
+                // Carregar detalhes do profissional
+                val profissionalInfo = authRepository.getUsuarioByUid(profissionalUid, tipo)
+                profissional = profissionalInfo
+
+                // Carregar histórico de medicações do paciente, filtrando pelo profissional
+                val allMedicacoes = authRepository.getMedicacoes(pacienteUid)
+                historicoMedicacoes = allMedicacoes.filter { it.profissionalUid == profissionalUid }
             } catch (e: Exception) {
-                errorMessage = e.message ?: "Falha ao carregar os dados do profissional."
+                errorMessage = e.message ?: "Falha ao carregar os dados do profissional ou o histórico."
             } finally {
                 isLoading = false
             }
@@ -42,9 +50,7 @@ class DetalhesProfissionalViewModel : ViewModel() {
         errorMessage = null
         viewModelScope.launch {
             try {
-                // Re-autentica o usuário
                 authRepository.reauthenticateUser(password)
-                // Desvincula o profissional
                 authRepository.desvincularMedico(pacienteUid, medicoUid)
                 showPasswordDialog = false
             } catch (e: Exception) {

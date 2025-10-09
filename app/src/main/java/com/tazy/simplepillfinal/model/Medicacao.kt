@@ -1,4 +1,4 @@
-// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d55ff279be231b459964f532606/app/src/main/java/com/tazy/simplepillfinal/model/Medicacao.kt
+// F_ARQUIVO: itazy/simplepillfinal/SimplePIllFinal-23165cb55ae68d037f9980688663ae0c4fa23193/app/src/main/java/com/tazy/simplepillfinal/model/Medicacao.kt
 package com.tazy.simplepillfinal.model
 
 import com.google.firebase.Timestamp
@@ -11,7 +11,8 @@ data class Medicacao(
     val duracao: String = "",
     val observacoes: String = "",
     val pacienteUid: String = "",
+    val profissionalUid: String = "", // Adicionado para identificar o profissional
     val profissionalNome: String = "",
     val dataPrescricao: Timestamp = Timestamp.now(),
-    val arquivoUrl: String? = null // Adicionar este campo para a URL do PDF
+    val arquivoUrl: String? = null
 )
