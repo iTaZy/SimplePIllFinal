@@ -23,7 +23,7 @@ class ProfileViewModel : ViewModel() {
     var email by mutableStateOf("")
     var telefone by mutableStateOf("")
     var endereco by mutableStateOf("")
-    var nationalId by mutableStateOf("")
+    var nationalId by mutableStateOf("") // Usado para CPF ou CRM
     var susCard by mutableStateOf("")
     var ufCrm by mutableStateOf("")
 
@@ -50,7 +50,7 @@ class ProfileViewModel : ViewModel() {
                             email = it.email
                             telefone = it.telefone
                             endereco = it.endereco
-                            nationalId = it.nacionalidade
+                            nationalId = it.cpf // CORRIGIDO: Carregando 'cpf'
                             susCard = it.numSus
                         }
                     }

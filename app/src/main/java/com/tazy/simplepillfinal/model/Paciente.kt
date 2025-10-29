@@ -12,6 +12,7 @@ data class Paciente(
     val nacionalidade: String = "",
     val numSus: String = "",
     val unidadeSus: String = "",
+    val cpf: String = "", // ADICIONADO CAMPO CPF
     val profissionaisIds: List<String> = emptyList(),
     val cuidadoresIds: List<String> = emptyList(),
     val profissionaisPendentes: List<VinculacaoPendente> = emptyList(),

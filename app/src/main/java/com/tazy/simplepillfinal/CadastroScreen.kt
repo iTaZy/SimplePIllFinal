@@ -200,13 +200,7 @@ private fun ConteudoLogin(navController: NavHostController, viewModel: LoginView
         ) {
             Text(if (viewModel.isLoading) "Carregando..." else "Entrar", fontSize = 18.sp, color = Color.White)
         }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = "ou conheça o aplicativo",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            textDecoration = TextDecoration.Underline,
-            modifier = Modifier.clickable { /* TODO: Implementar navegação */ }
-        )
+
+        // --- TEXTO "CONHEÇA O APLICATIVO" REMOVIDO DAQUI ---
     }
 }

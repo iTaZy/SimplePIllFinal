@@ -104,11 +104,13 @@ class AuthRepository {
     }
 
     suspend fun vincularPaciente(emailPaciente: String, associadoUid: String, associadoTipo: TipoUsuario) {
+        // --- QUERY MODIFICADA AQUI (removido .orderBy) ---
         val querySnapshot = firestore.collection(FirestoreCollections.PACIENTES)
             .whereEqualTo("email", emailPaciente)
             .limit(1)
             .get()
             .await()
+        // --- FIM DA MODIFICAÇÃO ---
 
         if (querySnapshot.isEmpty) {
             throw Exception("Nenhum paciente encontrado com este e-mail.")

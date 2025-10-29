@@ -2,6 +2,7 @@
 package com.tazy.simplepillfinal.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -109,6 +110,7 @@ fun NavGraph(navController: NavHostController) {
             TelaConfirmacoes(navController, pacienteUid)
         }
 
+        // --- ROTA ATUALIZADA (MELHORIA 4) ---
         composable(
             route = "${AppRoutes.ACOES_PACIENTE}/{pacienteUid}/{pacienteNome}",
             arguments = listOf(
@@ -118,13 +120,56 @@ fun NavGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
             val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
-            TelaAcoesPaciente(
+            val decodedPacienteNome = URLDecoder.decode(pacienteNome, StandardCharsets.UTF_8.toString())
+
+            // Lista de ações para Profissionais
+            val professionalActions = listOf(
+                Pair("Prescrever medicações") {
+                    val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                    navController.navigate("${AppRoutes.PRESCREVER_MEDICACAO}/$pacienteUid/$encodedNome")
+                },
+                Pair("Solicitar exames") {
+                    val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                    val encodedAcao = URLEncoder.encode("Exames", StandardCharsets.UTF_8.toString())
+                    navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+                },
+                Pair("Solicitar vacinação") {
+                    val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                    val encodedAcao = URLEncoder.encode("Vacinação", StandardCharsets.UTF_8.toString())
+                    navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+                },
+                Pair("Registrar internação") {
+                    val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                    val encodedAcao = URLEncoder.encode("Internação", StandardCharsets.UTF_8.toString())
+                    navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+                },
+                Pair("Cadastro fisioterapêutico") {
+                    val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                    val encodedAcao = URLEncoder.encode("Fisioterapia", StandardCharsets.UTF_8.toString())
+                    navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+                },
+                Pair("Cadastro saúde mental") {
+                    val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                    val encodedAcao = URLEncoder.encode("Saúde mental", StandardCharsets.UTF_8.toString())
+                    navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+                },
+                Pair("Cadastro nutricional") {
+                    val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
+                    val encodedAcao = URLEncoder.encode("Nutrição", StandardCharsets.UTF_8.toString())
+                    navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+                }
+            )
+
+            TelaPacienteAcoes(
                 navController = navController,
-                pacienteUid = pacienteUid,
-                pacienteNome = pacienteNome
+                pacienteNome = pacienteNome,
+                backgroundColor = Color(0xFFE2C64D), // Amarelo
+                contentColor = Color.Black,
+                menuItems = professionalActions
             )
         }
 
+        // --- ROTA ATUALIZADA (MELHORIA 4) ---
         composable(
             route = "${AppRoutes.VISUALIZAR_DADOS_PACIENTE}/{pacienteUid}/{pacienteNome}",
             arguments = listOf(
@@ -134,10 +179,38 @@ fun NavGraph(navController: NavHostController) {
         ) { backStackEntry ->
             val pacienteUid = backStackEntry.arguments?.getString("pacienteUid") ?: ""
             val pacienteNome = backStackEntry.arguments?.getString("pacienteNome") ?: "Paciente"
-            TelaVisualizacaoPaciente(
+
+            // Lista de ações para Cuidadores
+            val caregiverActions = listOf(
+                Pair("Visualizar Medicações") {
+                    navController.navigate("${AppRoutes.MINHAS_MEDICACOES}/$pacienteUid")
+                },
+                Pair("Visualizar Exames") {
+                    navController.navigate("${AppRoutes.VISUALIZAR_EXAMES}/$pacienteUid")
+                },
+                Pair("Visualizar Vacinação") {
+                    navController.navigate("${AppRoutes.VISUALIZAR_VACINACAO}/$pacienteUid")
+                },
+                Pair("Visualizar Internações") {
+                    navController.navigate("${AppRoutes.VISUALIZAR_INTERNACOES}/$pacienteUid")
+                },
+                Pair("Visualizar Fisioterapia") {
+                    navController.navigate("${AppRoutes.VISUALIZAR_FISIOTERAPIA}/$pacienteUid")
+                },
+                Pair("Visualizar Saúde Mental") {
+                    navController.navigate("${AppRoutes.VISUALIZAR_SAUDE_MENTAL}/$pacienteUid")
+                },
+                Pair("Visualizar Nutrição") {
+                    navController.navigate("${AppRoutes.VISUALIZAR_NUTRICAO}/$pacienteUid")
+                }
+            )
+
+            TelaPacienteAcoes(
                 navController = navController,
-                pacienteUid = pacienteUid,
-                pacienteNome = pacienteNome
+                pacienteNome = pacienteNome,
+                backgroundColor = Color(0xFF166A1E), // Verde
+                contentColor = Color.White,
+                menuItems = caregiverActions
             )
         }
 

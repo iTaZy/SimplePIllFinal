@@ -1,4 +1,4 @@
-// F_ARQUIVO: ui/screens/TelaAcoesPaciente.kt
+// ARQUIVO RENOMEADO E CORRIGIDO: ui/screens/TelaPacienteAcoes.kt
 package com.tazy.simplepillfinal.ui.screens
 
 import androidx.compose.foundation.Image
@@ -9,8 +9,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
@@ -28,16 +26,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tazy.simplepillfinal.R
-import com.tazy.simplepillfinal.navigation.AppRoutes
 import java.net.URLDecoder
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+/**
+ * Tela genérica refatorada para exibir ações (Profissional) ou visualizações (Cuidador).
+ */
 @Composable
-fun TelaAcoesPaciente(
+fun TelaPacienteAcoes(
     navController: NavController,
-    pacienteUid: String,
-    pacienteNome: String
+    pacienteNome: String,
+    backgroundColor: Color, // Cor de fundo da tela
+    contentColor: Color, // Cor do conteúdo (textos)
+    menuItems: List<Pair<String, () -> Unit>> // Lista de botões (Texto, Ação)
 ) {
     val decodedPacienteNome = remember(pacienteNome) {
         try {
@@ -46,8 +47,6 @@ fun TelaAcoesPaciente(
             pacienteNome
         }
     }
-
-    val backgroundColor = Color(0xFFE2C64D)
 
     Column(
         modifier = Modifier
@@ -67,7 +66,7 @@ fun TelaAcoesPaciente(
                 text = "Paciente,\n$decodedPacienteNome",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = contentColor,
                 lineHeight = 36.sp
             )
             Image(
@@ -90,45 +89,9 @@ fun TelaAcoesPaciente(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            ActionButton(text = "Prescrever medicações") {
-                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-                navController.navigate("${AppRoutes.PRESCREVER_MEDICACAO}/$pacienteUid/$encodedNome")
-            }
-
-            ActionButton(text = "Solicitar exames") {
-                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-                val encodedAcao = URLEncoder.encode("Exames", StandardCharsets.UTF_8.toString())
-                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-            }
-
-            ActionButton(text = "Solicitar vacinação") {
-                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-                val encodedAcao = URLEncoder.encode("Vacinação", StandardCharsets.UTF_8.toString())
-                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-            }
-
-            ActionButton(text = "Registrar internação") {
-                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-                val encodedAcao = URLEncoder.encode("Internação", StandardCharsets.UTF_8.toString())
-                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-            }
-
-            ActionButton(text = "Cadastro fisioterapêutico") {
-                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-                val encodedAcao = URLEncoder.encode("Fisioterapia", StandardCharsets.UTF_8.toString())
-                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-            }
-
-            ActionButton(text = "Cadastro saúde mental") {
-                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-                val encodedAcao = URLEncoder.encode("Saúde mental", StandardCharsets.UTF_8.toString())
-                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
-            }
-
-            ActionButton(text = "Cadastro nutricional") {
-                val encodedNome = URLEncoder.encode(decodedPacienteNome, StandardCharsets.UTF_8.toString())
-                val encodedAcao = URLEncoder.encode("Nutrição", StandardCharsets.UTF_8.toString())
-                navController.navigate("${AppRoutes.CADASTRO_UNIFICADO}/$pacienteUid/$encodedNome/$encodedAcao")
+            // Itera sobre a lista de itens do menu
+            menuItems.forEach { (text, onClick) ->
+                ActionButton(text = text, onClick = onClick)
             }
         }
 
@@ -147,7 +110,7 @@ fun TelaAcoesPaciente(
                 text = "Voltar",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = contentColor,
                 textAlign = TextAlign.Center
             )
         }

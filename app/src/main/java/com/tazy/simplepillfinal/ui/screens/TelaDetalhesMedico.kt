@@ -1,12 +1,15 @@
 // F_ARQUIVO: ui/screens/TelaDetalhesMedico.kt
 package com.tazy.simplepillfinal.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
@@ -15,7 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -34,6 +39,7 @@ fun TelaDetalhesMedico(
     medicoNome: String,
     viewModel: DetalhesProfissionalViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val decodedMedicoNome = remember(medicoNome) {
         URLDecoder.decode(medicoNome, StandardCharsets.UTF_8.toString())
     }
@@ -42,6 +48,23 @@ fun TelaDetalhesMedico(
         // Corrigido para carregar tanto os detalhes quanto o histórico
         viewModel.carregarDetalhesEHistorico(pacienteUid, medicoId, TipoUsuario.PROFISSIONAL_SAUDE)
     }
+
+    // Efeito para tratar erros
+    LaunchedEffect(viewModel.errorMessage) {
+        viewModel.errorMessage?.let {
+            Toast.makeText(context, "Erro: $it", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    // Efeito para navegar de volta após desvincular
+    LaunchedEffect(viewModel.unlinkSuccess) {
+        if (viewModel.unlinkSuccess) {
+            Toast.makeText(context, "Profissional desvinculado.", Toast.LENGTH_SHORT).show()
+            viewModel.clearState()
+            navController.popBackStack()
+        }
+    }
+
 
     val headerColor = Color(0xFF74ABBF)
 
@@ -98,14 +121,21 @@ fun TelaDetalhesMedico(
                     .padding(paddingValues)
                     .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 when {
-                    viewModel.isLoading -> CircularProgressIndicator()
-                    viewModel.errorMessage != null -> Text(text = "Erro: ${viewModel.errorMessage}")
-                    else -> {
-                        val profissional = viewModel.profissional
-                        if (profissional != null) {
+                    viewModel.isLoading && viewModel.profissional == null -> CircularProgressIndicator()
+                    viewModel.errorMessage != null && viewModel.profissional == null -> Text(text = "Erro: ${viewModel.errorMessage}")
+                    viewModel.profissional != null -> {
+                        val profissional = viewModel.profissional!!
+
+                        // Conteúdo da tela (Perfil e Histórico)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState()),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
                             // Seção do perfil
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -160,7 +190,7 @@ fun TelaDetalhesMedico(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             // Seção do histórico
                             Text(
@@ -170,29 +200,91 @@ fun TelaDetalhesMedico(
                                 modifier = Modifier.align(Alignment.Start)
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            if (viewModel.historicoMedicacoes.isEmpty()) {
+                            if (viewModel.isLoading) {
+                                CircularProgressIndicator()
+                            } else if (viewModel.historicoMedicacoes.isEmpty()) {
                                 Text(text = "Nenhuma medicação prescrita por este profissional.", color = Color.Gray)
                             } else {
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                                ) {
-                                    items(viewModel.historicoMedicacoes) { medicacao ->
+                                // Usando Column em vez de LazyColumn para rolar junto com a tela
+                                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    viewModel.historicoMedicacoes.forEach { medicacao ->
                                         DetalhesMedicoMedicacaoCard(medicacao)
                                     }
                                 }
                             }
-                        } else {
-                            Text(text = "Profissional não encontrado.")
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // --- BOTÃO DE DESVINCULAR ADICIONADO ---
+                            OutlinedButton(
+                                onClick = { viewModel.togglePasswordDialog(true) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(56.dp),
+                                shape = RoundedCornerShape(50),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = Color.Red
+                                ),
+                                border = ButtonDefaults.outlinedButtonBorder.copy(
+                                    brush = androidx.compose.ui.graphics.SolidColor(Color.Red)
+                                )
+                            ) {
+                                Text(if (viewModel.isLoading) "Aguarde..." else "Desvincular Profissional")
+                            }
                         }
+                    }
+                    else -> {
+                        Text(text = "Profissional não encontrado.")
                     }
                 }
             }
         }
+
+        // --- DIALOG DE CONFIRMAÇÃO DE SENHA ADICIONADO ---
+        if (viewModel.showPasswordDialog) {
+            AlertDialog(
+                onDismissRequest = { viewModel.togglePasswordDialog(false) },
+                title = { Text("Confirme sua senha") },
+                text = {
+                    Column {
+                        Text("Para desvincular este profissional, por favor, insira sua senha atual.")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        OutlinedTextField(
+                            value = viewModel.currentPassword,
+                            onValueChange = { viewModel.currentPassword = it },
+                            label = { Text("Senha atual") },
+                            visualTransformation = PasswordVisualTransformation(),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        if (viewModel.errorMessage != null) {
+                            Text(
+                                text = viewModel.errorMessage!!,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            viewModel.desfazerVinculo(pacienteUid, medicoId, viewModel.currentPassword)
+                        },
+                        enabled = viewModel.currentPassword.isNotBlank() && !viewModel.isLoading
+                    ) {
+                        Text(if (viewModel.isLoading) "Verificando..." else "Confirmar")
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { viewModel.togglePasswordDialog(false) }) {
+                        Text("Cancelar")
+                    }
+                }
+            )
+        }
     }
 }
+
 
 // Renomeado para evitar conflito
 @Composable

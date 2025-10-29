@@ -22,8 +22,14 @@ class DetalhesProfissionalViewModel : ViewModel() {
         private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
+
+    // --- ATUALIZAÇÕES PARA DESVINCULAR ---
     var showPasswordDialog by mutableStateOf(false)
         private set
+    var unlinkSuccess by mutableStateOf(false)
+        private set
+    var currentPassword by mutableStateOf("")
+    // --- FIM DAS ATUALIZAÇÕES ---
 
     fun carregarDetalhesEHistorico(pacienteUid: String, profissionalUid: String, tipo: TipoUsuario) {
         isLoading = true
@@ -51,15 +57,26 @@ class DetalhesProfissionalViewModel : ViewModel() {
                 authRepository.reauthenticateUser(password)
                 authRepository.desvincularMedico(pacienteUid, medicoUid)
                 showPasswordDialog = false
+                unlinkSuccess = true // Gatilho para a UI navegar
             } catch (e: Exception) {
                 errorMessage = e.message ?: "Falha ao desvincular. Verifique sua senha."
             } finally {
                 isLoading = false
+                currentPassword = ""
             }
         }
     }
 
     fun togglePasswordDialog(show: Boolean) {
         showPasswordDialog = show
+        if (!show) {
+            errorMessage = null
+            currentPassword = ""
+        }
+    }
+
+    fun clearState() {
+        unlinkSuccess = false
+        errorMessage = null
     }
 }
